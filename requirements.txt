@@ -1,0 +1,10 @@
+transformers
+sentencepiece
+pandas
+torch
+numpy
+ipykernel
+nltk
+wordcloud
+torcheval
+torchmetrics
