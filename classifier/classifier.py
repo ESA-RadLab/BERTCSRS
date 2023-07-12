@@ -17,7 +17,7 @@ class BertClassifier(nn.Module):
     self.bert.train()
     self.dropout = nn.Dropout(dropout)
     self.linear = nn.Linear(hidden, 2)
-    self.softmax = nn.Softmax()
+    self.softmax = nn.Softmax(dim=0)
 
   def forward(self, input_id, mask):
     """ The forward pass of the BERT classifier.
