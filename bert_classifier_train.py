@@ -84,7 +84,8 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
           - learning_rate: learning rate
           - epochs: the number of epochs for training
     """
-    save_path = os.path.join("classifier/models", model_name)
+    start_time = datetime.now()
+    save_path = os.path.join("classifier/models", model_name, start_time.strftime("%d.%m %H.%M"))
     log_path = os.path.join(save_path, "logs")
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -107,8 +108,10 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
     device = torch.device("cuda" if use_cuda else "cpu")
 
     print("Building optimizer")
-    loss_weights = torch.Tensor([1., 17.])  # pick the weights
-    criterion = nn.CrossEntropyLoss(weight=loss_weights)
+    # loss_weights = torch.Tensor([1., 17.])  # pick the weights
+    # criterion = nn.CrossEntropyLoss(weight=loss_weights)
+    criterion = nn.BCEWithLogitsLoss()
+
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
     num_training_steps = epochs * len(train_dataloader)
