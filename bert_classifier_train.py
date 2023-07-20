@@ -75,7 +75,7 @@ class Dataset(torch.utils.data.Dataset):
         return batch_texts, batch_y
 
 
-def train(model_name, train_data, val_data, learning_rate, epochs):
+def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -100,7 +100,7 @@ def train(model_name, train_data, val_data, learning_rate, epochs):
     print("Retrieving data")
     train_set, val = Dataset(train_data, current_model), Dataset(val_data, current_model)
 
-    train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=25, shuffle=True, num_workers=0)
+    train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=0)
     val_dataloader = torch.utils.data.DataLoader(val, batch_size=30)
 
     use_cuda = torch.cuda.is_available()
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     LR = 2e-5
     EPOCHS = 5
 
-    train('biobert', train_data, val_data, LR, EPOCHS)
+    train('biobert', train_data, val_data, LR, EPOCHS, 25)
     #
     # torch.save(model.state_dict(), "bio.pt")
     #
