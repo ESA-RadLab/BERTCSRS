@@ -248,7 +248,7 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
             precision_v = 0
 
         train_log = f"EPOCH {epoch_num} TRAIN average Loss: {(total_loss_train / len(train_dataloader)):.6f} Accuracy: {(total_acc_train / len(train_data)):.6f} Recall: {recall_t:.4f} TP/FN: {tp_t}/{fn_t}"
-        val_log = f"EPOCH {epoch_num} VALID average Loss: {(total_loss_val / len(val_dataloader)):.6f} Accuracy: {(total_acc_val / len(val_data)):.6f} Recall: {recall_v:.4f} Precision: {precision_v:.4f} TP/FN: {tp_v}/{fn_v} FP/TN: {fp_v}/{tn_v}"
+        val_log = f"EPOCH {epoch_num} VALID average Loss: {(total_loss_val / len(val_dataloader)):.6f} Accuracy: {(total_acc_val / len(val_data)):.6f} Recall: {recall_v:.4f} Precision: {precision_v:.4f} TP/FN: {tp_v}/{fn_v} TN/FP: {tn_v}/{fp_v}"
 
         epoch_log.write(train_log + "\n")
         epoch_log.write(val_log)
