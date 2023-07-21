@@ -11,6 +11,7 @@ import nltk
 import numpy as np
 import pandas as pd
 import torch
+import torchmetrics
 import transformers
 from torch import nn
 from torch.nn import functional as F
@@ -46,12 +47,18 @@ class Dataset(torch.utils.data.Dataset):
 
         tokenizer = AutoTokenizer.from_pretrained(current_model)
 
-        labels = {
+        labels_dict = {
             'Excluded': 0,
             'Included': 1,
         }
 
-        self.labels = [labels[label] for label in df['decision']]
+        self.labels = []
+        label = [0, 0]
+        for decision in df['decision']:
+            label[labels_dict[decision]] = 1
+            self.labels.append(label)
+            label = [0, 0]
+
         self.texts = [tokenizer(text, padding='max_length', max_length=256, truncation=True,
                                 return_tensors="pt") for text in df['titleabstract']]
 
@@ -75,7 +82,7 @@ class Dataset(torch.utils.data.Dataset):
         return batch_texts, batch_y
 
 
-def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
+def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -92,6 +99,9 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
+    summary_log = open(os.path.join(log_path, "summary"), 'w')
+    summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
+
     current_model = model_options[model_name]
 
     print("Get model")
@@ -99,6 +109,8 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
     model.train()
 
     print("Retrieving data")
+    train_data = pd.read_csv(train_path)
+    val_data = pd.read_csv(val_path)
     train_set, val = Dataset(train_data, current_model), Dataset(val_data, current_model)
 
     train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=0)
@@ -111,6 +123,9 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
     criterion = nn.BCEWithLogitsLoss()
+    acc = torchmetrics.classification.BinaryAccuracy(threshold=0.)
+    precision = torchmetrics.classification.BinaryPrecision(threshold=0.)
+    recall = torchmetrics.classification.BinaryRecall(threshold=0.)
 
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
@@ -120,6 +135,9 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
     if use_cuda:
         model = model.cuda()
         criterion = criterion.cuda()
+        acc = acc.cuda()
+        precision = precision.cuda()
+        recall = recall.cuda()
         print("Using Cuda")
 
     print("Training")
@@ -148,7 +166,7 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
             i += 1
             # print(f"Batch: {i}/{length}")
 
-            train_label = train_label.to(device)
+            train_label = train_label.float().to(device)
             mask = train_input['attention_mask'].to(device)
             input_id = train_input['input_ids'].squeeze(1).to(device)
 
@@ -158,17 +176,13 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
             output, attentions = model(input_id, mask)
             # output, .. = model(input_id, mask)
 
-            batch_loss = criterion(output, train_label.long())
+            batch_loss = criterion(output, train_label)
             total_loss_train += batch_loss.item()
 
-            acc = (output.argmax(dim=1) == train_label).sum().item()
-            total_acc_train += acc
+            batch_acc = acc(output, train_label)
+            batch_precision = precision(output[1], train_label[1])
+            batch_recall = recall(output[1], train_label[1])
 
-            for ind, out in enumerate(output.argmax(dim=1)):
-                if out == train_label[ind] and train_label[ind] == 1:
-                    tp_t += 1
-                elif out != train_label[ind] and train_label[ind] == 1:
-                    fn_t += 1
 
             batch_loss.backward()
 
@@ -197,7 +211,7 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
             elapsed_minutes = floor(((elapsed_time / 3600) - elapsed_hours) * 60)
             elapsed_seconds = floor(((elapsed_time / 60) - floor(elapsed_time / 60)) * 60)
 
-            log = f"[{epoch_num}/{epochs}]: [{i}/{length}] training loss:{batch_loss:.5f} " \
+            log = f"[{epoch_num}/{epochs}]: [{i}/{length}] loss:{batch_loss:.5f} acc: {batch_acc:.3f} precision: {batch_precision:.3f} recall: {batch_recall:.3f} " \
                   f"lr:{learning_rate:.6f} elapsed time: {elapsed_hours:.0f}:{elapsed_minutes:.0f}:{elapsed_seconds:.0f} " \
                   f"time remaining: {remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
             epoch_log.write(log + "\n")
@@ -205,57 +219,80 @@ def train(model_name, train_data, val_data, learning_rate, epochs, batch_size):
             print(log)
                 # break
 
+        train_acc = acc.compute()
+        acc.reset()
+
+        train_precision = precision.compute()
+        precision.reset()
+
+        train_recall = recall.compute()
+        recall.reset()
+
         total_acc_val = 0
         total_loss_val = 0
         print("Validating")
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
-                val_label = val_label.to(device)
+                val_label = val_label.float().to(device)
                 mask = val_input['attention_mask'].to(device)
                 input_id = val_input['input_ids'].squeeze(1).to(device)
 
                 output, attentions = model(input_id, mask)
 
-                val_loss = criterion(output, val_label.long())
+                val_loss = criterion(output, val_label)
                 total_loss_val += val_loss.item()
 
-                acc = (output.argmax(dim=1) == val_label).sum().item()
+                batch_acc = acc(output, val_label)
+                batch_precision = precision(output[1], val_label[1])
+                batch_recall = recall(output[1], val_label[1])
 
-                for ind, out in enumerate(output.argmax(dim=1)):
-                    if out == val_label[ind] and val_label[ind] == 1:
-                        tp_v += 1
-                    elif out != val_label[ind] and val_label[ind] == 1:
-                        fn_v += 1
-                    elif val_label[ind] == 0 and out == 1:
-                        fp_v += 1
-                    else:
-                        tn_v += 1
+                # for ind, out in enumerate(output):
+                #     if out == val_label[ind] and val_label[ind] == 1:
+                #         tp_v += 1
+                #     elif out != val_label[ind] and val_label[ind] == 1:
+                #         fn_v += 1
+                #     elif val_label[ind] == 0 and out == 1:
+                #         fp_v += 1
+                #     else:
+                #         tn_v += 1
 
-                total_acc_val += acc
+                # total_acc_val += acc
 
                 sys.stdout.flush()
                 gc.collect()
-        if tp_t + fn_t > 0:
-            recall_t = tp_t / (tp_t + fn_t)
-        else:
-            recall_t = 0
+        # if tp_t + fn_t > 0:
+        #     recall_t = tp_t / (tp_t + fn_t)
+        # else:
+        #     recall_t = 0
+        #
+        # if tp_v + fn_v > 0:
+        #     recall_v = tp_v / (tp_v + fn_v)
+        # else:
+        #     recall_v = 0
+        #
+        # if tp_v + fp_v > 0:
+        #     precision_v = tp_v / (tp_v + fp_v)
+        # else:
+        #     precision_v = 0
 
-        if tp_v + fn_v > 0:
-            recall_v = tp_v / (tp_v + fn_v)
-        else:
-            recall_v = 0
+        val_acc = acc.compute()
+        acc.reset()
 
-        if tp_v + fp_v > 0:
-            precision_v = tp_v / (tp_v + fp_v)
-        else:
-            precision_v = 0
+        val_precision = precision.compute()
+        precision.reset()
 
-        train_log = f"EPOCH {epoch_num} TRAIN average Loss: {(total_loss_train / len(train_dataloader)):.6f} Accuracy: {(total_acc_train / len(train_data)):.6f} Recall: {recall_t:.4f} TP/FN: {tp_t}/{fn_t}"
-        val_log = f"EPOCH {epoch_num} VALID average Loss: {(total_loss_val / len(val_dataloader)):.6f} Accuracy: {(total_acc_val / len(val_data)):.6f} Recall: {recall_v:.4f} Precision: {precision_v:.4f} TP/FN: {tp_v}/{fn_v} TN/FP: {tn_v}/{fp_v}"
+        val_recall = recall.compute()
+        recall.reset()
+
+        train_log = f"EPOCH {epoch_num} TRAIN average Loss: {(total_loss_train / len(train_dataloader)):.6f} Accuracy: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
+        val_log = f"EPOCH {epoch_num} VALID average Loss: {(total_loss_val / len(val_dataloader)):.6f} Accuracy: {val_acc:.6f} Recall: {val_recall:.4f} Precision: {val_precision:.4f}"
 
         epoch_log.write(train_log + "\n")
         epoch_log.write(val_log)
         epoch_log.close()
+
+        summary_log.write(f"{train_log}\n")
+        summary_log.write(f"{val_log}\n")
 
         print(train_log)
         print(val_log)
@@ -273,8 +310,7 @@ if __name__ == "__main__":
     # read the training & validation data
     train_path = os.path.join("data", "sex_diff_aug.csv")
     val_path = os.path.join("data", "sex_diff_val.csv")
-    train_data = pd.read_csv(train_path)
-    val_data = pd.read_csv(val_path)
+
 
 
     #
@@ -283,7 +319,7 @@ if __name__ == "__main__":
     LR = 2e-5
     EPOCHS = 5
 
-    train('biobert', train_data, val_data, LR, EPOCHS, 25)
+    train('biobert', train_path, val_path, LR, EPOCHS, 25)
     #
     # torch.save(model.state_dict(), "bio.pt")
     #
