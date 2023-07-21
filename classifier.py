@@ -1,4 +1,3 @@
-import torch
 from torch import nn
 from transformers import BertModel
 
@@ -19,8 +18,8 @@ class BertClassifier(nn.Module):
         self.bert.train()
         self.dropout = nn.Dropout(dropout)
         self.linear1 = nn.Linear(hidden, 50)
-        # self.linear2 = nn.Linear(50, 50)
-        self.linear3 = nn.Linear(50, 2)
+        self.linear2 = nn.Linear(50, 25)
+        self.linear3 = nn.Linear(25, 2)
         self.softmax = nn.ReLU()
 
     def forward(self, input_id, mask):
@@ -35,7 +34,7 @@ class BertClassifier(nn.Module):
         bert_outputs = self.bert(input_ids=input_id, attention_mask=mask)
         pooled_output = bert_outputs['pooler_output']
         hidden_layer1 = self.linear1(self.dropout(pooled_output))
-        # hidden_layer2 = self.linear2(self.dropout(hidden_layer1))
-        hidden_layer3 = self.linear3(self.dropout(hidden_layer1))
+        hidden_layer2 = self.linear2(self.dropout(hidden_layer1))
+        hidden_layer3 = self.linear3(self.dropout(hidden_layer2))
         final_layer = self.softmax(hidden_layer3)
         return final_layer, bert_outputs

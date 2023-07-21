@@ -261,6 +261,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
 
         torch.save(model.state_dict(),
                    os.path.join(save_path, f"{model_name}_epoch_{epoch_num}_{current_time.replace(':', '.')}.pt"))
+    summary_log.close()
 
 
 if __name__ == "__main__":
@@ -269,7 +270,7 @@ if __name__ == "__main__":
     # pick the model and create the tokenizer
 
     # read the training & validation data
-    train_path = os.path.join("data", "sex_diff_aug.csv")
+    train_path = os.path.join("data", "sex_diff_train.csv")
     val_path = os.path.join("data", "sex_diff_val.csv")
 
     #
