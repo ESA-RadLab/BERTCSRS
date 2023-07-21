@@ -20,7 +20,7 @@ class BertClassifier(nn.Module):
         self.linear1 = nn.Linear(hidden, 50)
         self.linear2 = nn.Linear(50, 25)
         self.linear3 = nn.Linear(25, 2)
-        self.softmax = nn.ReLU()
+        self.activation = nn.Sigmoid()
 
     def forward(self, input_id, mask):
         """ The forward pass of the BERT classifier.
@@ -36,5 +36,5 @@ class BertClassifier(nn.Module):
         hidden_layer1 = self.linear1(self.dropout(pooled_output))
         hidden_layer2 = self.linear2(self.dropout(hidden_layer1))
         hidden_layer3 = self.linear3(self.dropout(hidden_layer2))
-        final_layer = self.softmax(hidden_layer3)
+        final_layer = self.activation(hidden_layer3)
         return final_layer, bert_outputs

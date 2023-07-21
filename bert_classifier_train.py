@@ -117,7 +117,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
-    criterion = nn.BCEWithLogitsLoss()
+    criterion = nn.BCELoss()
     acc = torchmetrics.classification.BinaryAccuracy(threshold=0.5)
     precision = torchmetrics.classification.BinaryPrecision(threshold=0.5)
     recall = torchmetrics.classification.BinaryRecall(threshold=0.5)
@@ -195,9 +195,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             elapsed_minutes = floor(((elapsed_time / 3600) - elapsed_hours) * 60)
             elapsed_seconds = floor(((elapsed_time / 60) - floor(elapsed_time / 60)) * 60)
 
-            log = f"[{epoch_num}/{epochs}]: [{i}/{length}] loss:{batch_loss:.5f} acc: {batch_acc:.3f} precision: {batch_precision:.3f} recall: {batch_recall:.3f} " \
-                  f"lr:{learning_rate:.6f} elapsed time: {elapsed_hours:.0f}:{elapsed_minutes:.0f}:{elapsed_seconds:.0f} " \
-                  f"time remaining: {remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
+            log = f"[{epoch_num}/{epochs}]: [{i}/{length}] loss:{batch_loss:.5f} " \
+                  f"lr:{learning_rate:.6f} elapsed time:{elapsed_hours:.0f}:{elapsed_minutes:.0f}:{elapsed_seconds:.0f} " \
+                  f"time remaining:{remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
             epoch_log.write(log + "\n")
             print(log)
 
