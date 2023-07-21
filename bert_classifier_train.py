@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
 import gc
 import os
 import sys
@@ -7,14 +5,11 @@ import time
 from datetime import datetime
 from math import floor
 
-import nltk
 import numpy as np
 import pandas as pd
 import torch
 import torchmetrics
-import transformers
 from torch import nn
-from torch.nn import functional as F
 from torch.optim import AdamW, lr_scheduler
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
@@ -105,7 +100,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
     current_model = model_options[model_name]
 
     print("Get model")
-    model = BertClassifier(hidden=768, model_type=current_model)  #768 or 128
+    model = BertClassifier(hidden=768, model_type=current_model)  # 768 or 128
     model.train()
 
     print("Retrieving data")
@@ -123,9 +118,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
     criterion = nn.BCEWithLogitsLoss()
-    acc = torchmetrics.classification.BinaryAccuracy(threshold=0.)
-    precision = torchmetrics.classification.BinaryPrecision(threshold=0.)
-    recall = torchmetrics.classification.BinaryRecall(threshold=0.)
+    acc = torchmetrics.classification.BinaryAccuracy(threshold=0.5)
+    precision = torchmetrics.classification.BinaryPrecision(threshold=0.5)
+    recall = torchmetrics.classification.BinaryRecall(threshold=0.5)
 
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
@@ -143,17 +138,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
     print("Training")
     length = len(train_dataloader)
     for epoch_num in range(1, epochs + 1):
-        tp_t = 0
-        fn_t = 0
 
-        tp_v = 0
-        fn_v = 0
-        fp_v = 0
-        tn_v = 0
-
-        total_acc_train = 0
         total_loss_train = 0
-        total_recall_train = 0
 
         time_begin = time.time()
         current_time = datetime.now()
@@ -164,7 +150,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
 
         for train_input, train_label in train_dataloader:
             i += 1
-            # print(f"Batch: {i}/{length}")
 
             train_label = train_label.float().to(device)
             mask = train_input['attention_mask'].to(device)
@@ -179,10 +164,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             batch_loss = criterion(output, train_label)
             total_loss_train += batch_loss.item()
 
-            batch_acc = acc(output, train_label)
-            batch_precision = precision(output[1], train_label[1])
-            batch_recall = recall(output[1], train_label[1])
+            result = output.argmax(dim=1)
 
+            batch_acc = acc(result, train_label[:, 1])
+            batch_precision = precision(result, train_label[:, 1])
+            batch_recall = recall(result, train_label[:, 1])
 
             batch_loss.backward()
 
@@ -196,8 +182,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             #     lr_schedule.step(val_loss)
             #     learning_rate = optimizer.param_groups[0]["lr"]
 
-            # current_time = datetime.now()
-            # current_time = current_time.strftime("%H:%M:%S")
             step_time = time.time()
             elapsed_time = step_time - time_begin
             batch_time = elapsed_time / i
@@ -215,9 +199,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
                   f"lr:{learning_rate:.6f} elapsed time: {elapsed_hours:.0f}:{elapsed_minutes:.0f}:{elapsed_seconds:.0f} " \
                   f"time remaining: {remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
             epoch_log.write(log + "\n")
-            # if i % 5 == 0:
             print(log)
-                # break
+
+            # if i >= 5:
+            #     break
 
         train_acc = acc.compute()
         acc.reset()
@@ -228,7 +213,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
         train_recall = recall.compute()
         recall.reset()
 
-        total_acc_val = 0
         total_loss_val = 0
         print("Validating")
         with torch.no_grad():
@@ -242,38 +226,14 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
                 val_loss = criterion(output, val_label)
                 total_loss_val += val_loss.item()
 
-                batch_acc = acc(output, val_label)
-                batch_precision = precision(output[1], val_label[1])
-                batch_recall = recall(output[1], val_label[1])
+                result = output.argmax(dim=1)
 
-                # for ind, out in enumerate(output):
-                #     if out == val_label[ind] and val_label[ind] == 1:
-                #         tp_v += 1
-                #     elif out != val_label[ind] and val_label[ind] == 1:
-                #         fn_v += 1
-                #     elif val_label[ind] == 0 and out == 1:
-                #         fp_v += 1
-                #     else:
-                #         tn_v += 1
-
-                # total_acc_val += acc
+                batch_acc = acc(result, val_label[:, 1])
+                batch_precision = precision(result, val_label[:, 1])
+                batch_recall = recall(result, val_label[:, 1])
 
                 sys.stdout.flush()
                 gc.collect()
-        # if tp_t + fn_t > 0:
-        #     recall_t = tp_t / (tp_t + fn_t)
-        # else:
-        #     recall_t = 0
-        #
-        # if tp_v + fn_v > 0:
-        #     recall_v = tp_v / (tp_v + fn_v)
-        # else:
-        #     recall_v = 0
-        #
-        # if tp_v + fp_v > 0:
-        #     precision_v = tp_v / (tp_v + fp_v)
-        # else:
-        #     precision_v = 0
 
         val_acc = acc.compute()
         acc.reset()
@@ -299,7 +259,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
 
         # model_name = "medbert" + str(epoch_num) + ".pt"
 
-        torch.save(model.state_dict(), os.path.join(save_path, f"{model_name}_epoch_{epoch_num}_{current_time.replace(':', '.')}.pt"))
+        torch.save(model.state_dict(),
+                   os.path.join(save_path, f"{model_name}_epoch_{epoch_num}_{current_time.replace(':', '.')}.pt"))
 
 
 if __name__ == "__main__":
@@ -310,8 +271,6 @@ if __name__ == "__main__":
     # read the training & validation data
     train_path = os.path.join("data", "sex_diff_aug.csv")
     val_path = os.path.join("data", "sex_diff_val.csv")
-
-
 
     #
     # model = BertClassifier(hidden=768, model_type=current_model)
