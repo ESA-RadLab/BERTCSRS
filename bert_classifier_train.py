@@ -47,12 +47,14 @@ class Dataset(torch.utils.data.Dataset):
             'Included': 1,
         }
 
-        self.labels = []
-        label = [0, 0]
-        for decision in df['decision']:
-            label[labels_dict[decision]] = 1
-            self.labels.append(label)
-            label = [0, 0]
+        # self.labels = []
+        # label = [0, 0]
+        # for decision in df['decision']:
+        #     label[labels_dict[decision]] = 1
+        #     self.labels.append(label)
+        #     label = [0, 0]
+
+        self.labels = [labels_dict[label] for label in df['decision']]
 
         self.texts = [tokenizer(text, padding='max_length', max_length=256, truncation=True,
                                 return_tensors="pt") for text in df['titleabstract']]
@@ -151,7 +153,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
         for train_input, train_label in train_dataloader:
             i += 1
 
-            train_label = train_label.float().to(device)
+            train_label = train_label.float().unsqueeze(-1).to(device)
             mask = train_input['attention_mask'].to(device)
             input_id = train_input['input_ids'].squeeze(1).to(device)
 
@@ -164,11 +166,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             batch_loss = criterion(output, train_label)
             total_loss_train += batch_loss.item()
 
-            result = output.argmax(dim=1)
+            result = output.argmax(dim=1).unsqueeze(-1)
 
-            batch_acc = acc(result, train_label[:, 1])
-            batch_precision = precision(result, train_label[:, 1])
-            batch_recall = recall(result, train_label[:, 1])
+            batch_acc = acc(result, train_label)
+            batch_precision = precision(result, train_label)
+            batch_recall = recall(result, train_label)
 
             batch_loss.backward()
 
@@ -196,13 +198,13 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             elapsed_seconds = floor(((elapsed_time / 60) - floor(elapsed_time / 60)) * 60)
 
             log = f"[{epoch_num}/{epochs}]: [{i}/{length}] loss:{batch_loss:.5f} " \
-                  f"lr:{learning_rate:.6f} elapsed time:{elapsed_hours:.0f}:{elapsed_minutes:.0f}:{elapsed_seconds:.0f} " \
-                  f"time remaining:{remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
+                  f"lr:{learning_rate:.6f} elapsed time: {elapsed_hours:.0f}:{elapsed_minutes:.0f}:{elapsed_seconds:.0f} " \
+                  f"time remaining: {remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
             epoch_log.write(log + "\n")
             print(log)
 
-            # if i >= 5:
-            #     break
+            if i >= 5:
+                break
 
         train_acc = acc.compute()
         acc.reset()
@@ -217,7 +219,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
         print("Validating")
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
-                val_label = val_label.float().to(device)
+                val_label = val_label.float().unsqueeze(-1).to(device)
                 mask = val_input['attention_mask'].to(device)
                 input_id = val_input['input_ids'].squeeze(1).to(device)
 
@@ -226,11 +228,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
                 val_loss = criterion(output, val_label)
                 total_loss_val += val_loss.item()
 
-                result = output.argmax(dim=1)
+                result = output.argmax(dim=1).unsqueeze(-1)
 
-                batch_acc = acc(result, val_label[:, 1])
-                batch_precision = precision(result, val_label[:, 1])
-                batch_recall = recall(result, val_label[:, 1])
+                batch_acc = acc(result, val_label)
+                batch_precision = precision(result, val_label)
+                batch_recall = recall(result, val_label)
 
                 sys.stdout.flush()
                 gc.collect()

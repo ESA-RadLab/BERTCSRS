@@ -19,7 +19,7 @@ class BertClassifier(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.linear1 = nn.Linear(hidden, 50)
         self.linear2 = nn.Linear(50, 25)
-        self.linear3 = nn.Linear(25, 2)
+        self.linear3 = nn.Linear(25, 1)
         self.activation = nn.Sigmoid()
 
     def forward(self, input_id, mask):
