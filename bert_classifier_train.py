@@ -103,7 +103,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
 
     print("Get model")
     model = BertClassifier(hidden=768, model_type=current_model)  # 768 or 128
-    model.train()
 
     print("Retrieving data")
     train_data = pd.read_csv(train_path)
@@ -140,6 +139,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
     print("Training")
     length = len(train_dataloader)
     for epoch_num in range(1, epochs + 1):
+        model.train()
 
         total_loss_train = 0
 
@@ -203,8 +203,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             epoch_log.write(log + "\n")
             print(log)
 
-            # if i >= 5:
-            #     break
+            if i >= 5:
+                break
 
         train_acc = acc.compute()
         acc.reset()
@@ -217,6 +217,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
 
         total_loss_val = 0
         print("Validating")
+        model.eval()
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
                 val_label = val_label.float().unsqueeze(-1).to(device)

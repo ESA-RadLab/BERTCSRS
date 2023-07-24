@@ -6,7 +6,7 @@ class BertClassifier(nn.Module):
     """The classifier model. BERT with a classification output head.
   """
 
-    def __init__(self, hidden, model_type, dropout=0.2):
+    def __init__(self, hidden, model_type, dropout=0.5):
         """ Create the BertClassifier.
         Params:
           - hidden: the size of the hidden layer
@@ -15,8 +15,9 @@ class BertClassifier(nn.Module):
     """
         super(BertClassifier, self).__init__()
         self.bert = BertModel.from_pretrained(model_type, output_attentions=True)
-        self.bert.train()
+        # self.bert.train()
         self.dropout = nn.Dropout(dropout)
+        self.relu = nn.ReLU()
         self.linear1 = nn.Linear(hidden, 50)
         self.linear2 = nn.Linear(50, 25)
         self.linear3 = nn.Linear(25, 1)
@@ -33,8 +34,8 @@ class BertClassifier(nn.Module):
     """
         bert_outputs = self.bert(input_ids=input_id, attention_mask=mask)
         pooled_output = bert_outputs['pooler_output']
-        hidden_layer1 = self.linear1(self.dropout(pooled_output))
-        hidden_layer2 = self.linear2(self.dropout(hidden_layer1))
-        hidden_layer3 = self.linear3(self.dropout(hidden_layer2))
+        hidden_layer1 = self.linear1(self.dropout(self.relu(pooled_output)))
+        hidden_layer2 = self.linear2(self.dropout(self.relu(hidden_layer1)))
+        hidden_layer3 = self.linear3(self.dropout(self.relu(hidden_layer2)))
         final_layer = self.activation(hidden_layer3)
         return final_layer, bert_outputs
