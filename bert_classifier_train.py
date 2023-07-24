@@ -89,7 +89,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
           - epochs: the number of epochs for training
     """
     start_time = datetime.now()
-    save_path = os.path.join("classifier/models", model_name, start_time.strftime("%d.%m %H.%M"))
+    save_path = os.path.join("classifier/models", model_name, start_time.strftime("%d.%m_%H.%M"))
     log_path = os.path.join(save_path, "logs")
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -166,11 +166,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             batch_loss = criterion(output, train_label)
             total_loss_train += batch_loss.item()
 
-            result = output.argmax(dim=1).unsqueeze(-1)
+            # result = output.argmax(dim=1).unsqueeze(-1)
 
-            batch_acc = acc(result, train_label)
-            batch_precision = precision(result, train_label)
-            batch_recall = recall(result, train_label)
+            batch_acc = acc(output, train_label)
+            batch_precision = precision(output, train_label)
+            batch_recall = recall(output, train_label)
 
             batch_loss.backward()
 
@@ -203,8 +203,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             epoch_log.write(log + "\n")
             print(log)
 
-            if i >= 5:
-                break
+            # if i >= 5:
+            #     break
 
         train_acc = acc.compute()
         acc.reset()
@@ -230,9 +230,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
 
                 result = output.argmax(dim=1).unsqueeze(-1)
 
-                batch_acc = acc(result, val_label)
-                batch_precision = precision(result, val_label)
-                batch_recall = recall(result, val_label)
+                batch_acc = acc(output, val_label)
+                batch_precision = precision(output, val_label)
+                batch_recall = recall(output, val_label)
 
                 sys.stdout.flush()
                 gc.collect()
