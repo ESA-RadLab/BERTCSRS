@@ -203,8 +203,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
             epoch_log.write(log + "\n")
             print(log)
 
-            if i >= 5:
-                break
+            # if i >= 5:
+            #     break
 
         train_acc = acc.compute()
         acc.reset()
@@ -247,14 +247,14 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
         val_recall = recall.compute()
         recall.reset()
 
-        train_log = f"EPOCH {epoch_num} TRAIN average Loss: {(total_loss_train / len(train_dataloader)):.6f} Accuracy: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
-        val_log = f"EPOCH {epoch_num} VALID average Loss: {(total_loss_val / len(val_dataloader)):.6f} Accuracy: {val_acc:.6f} Recall: {val_recall:.4f} Precision: {val_precision:.4f}"
+        train_log = f"EPOCH {epoch_num} TRAIN avloss: {(total_loss_train / len(train_dataloader)):.6f} Acc: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
+        val_log = f"EPOCH {epoch_num} VALID avloss: {(total_loss_val / len(val_dataloader)):.6f} Acc: {val_acc:.6f} Recall: {val_recall:.4f} Precision: {val_precision:.4f}"
 
         epoch_log.write(train_log + "\n")
         epoch_log.write(val_log)
         epoch_log.close()
 
-        summary_log.write(f"{train_log}\n")
+        summary_log.write(f"{train_log}\t")
         summary_log.write(f"{val_log}\n")
 
         print(train_log)

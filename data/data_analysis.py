@@ -2,16 +2,17 @@ import numpy as np
 import pandas as pd
 import regex as re
 
-file = pd.read_csv("sex_diff_aug.csv")
+file = pd.read_csv("sex_diff_balanced.csv")
 titleabstracts = file["titleabstract"]
 
-
+balanced = []
 duplicates = []
 title_abstracts_lengths = []
 above_256 = 0
 truncated = []
 included = 0
 included_truncated = 0
+# file_matrix = file.as_matrix()
 for i, text in enumerate(file["titleabstract"]):
     length = len(re.findall(r'\w+', text))
     if length > 256:
@@ -25,7 +26,12 @@ for i, text in enumerate(file["titleabstract"]):
             duplicates.append([text, i, j])
     if file["decision"][i] == "Included":
         included += 1
+    #     balanced.append(file.iloc[i, :])
+    # elif i % 3 == 0:
+    #     balanced.append(file.iloc[i, :])
 
+# df_balanced = pd.DataFrame(balanced, columns=file.columns)
+# df_balanced.to_csv("sex_diff_balanced.csv")
 
 print(f"number of texts: {len(titleabstracts)}")
 print(f"number of included: {included}")
@@ -42,3 +48,5 @@ print(f"mean: {np.mean(truncated):.2f}")
 print(f"median: {np.median(truncated)}")
 
 print(f"#duplicates: {len(duplicates)}")
+
+# print(f"balanced: {len(balanced)}")
