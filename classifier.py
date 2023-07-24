@@ -6,7 +6,7 @@ class BertClassifier(nn.Module):
     """The classifier model. BERT with a classification output head.
   """
 
-    def __init__(self, hidden, model_type, dropout=0.5):
+    def __init__(self, hidden, model_type, dropout=0.2):
         """ Create the BertClassifier.
         Params:
           - hidden: the size of the hidden layer

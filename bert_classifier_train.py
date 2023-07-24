@@ -79,7 +79,7 @@ class Dataset(torch.utils.data.Dataset):
         return batch_texts, batch_y
 
 
-def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
+def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -102,7 +102,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size):
     current_model = model_options[model_name]
 
     print("Get model")
-    model = BertClassifier(hidden=768, model_type=current_model)  # 768 or 128
+    model = BertClassifier(hidden=768, model_type=current_model, dropout=dropout)  # 768 or 128
 
     print("Retrieving data")
     train_data = pd.read_csv(train_path)
