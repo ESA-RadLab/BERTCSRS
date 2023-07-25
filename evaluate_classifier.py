@@ -13,7 +13,8 @@ from transformers import AutoTokenizer
 from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa
 from sklearn.metrics import confusion_matrix
 
-from classifier import BertClassifier
+# from classifier import BertClassifier
+from classifier_old import BertClassifier
 from bert_classifier_train import Dataset
 
 nltk.download('stopwords')
@@ -199,8 +200,8 @@ def test(bert_name, model_path, data_path, batch_size):
     # auc = metric(torch.tensor(all_logits), torch.tensor(true_vals))
 
     # print(f"{auc}, {cohen}, {F1}, {precision}, {recall}")
-    print(f"acc:{test_acc} precision:{test_precision} recall:{test_recall} recall4:{test_recall4} recall3:{test_recall3} " 
-          f"auroc:{test_auroc} f1:{test_f1} cohen:{test_cohen}")
+    print(f"acc:{test_acc:.4f} precision:{test_precision:.4f} recall:{test_recall:.4f} recall4:{test_recall4:.4f} recall3:{test_recall3:.4f} " 
+          f"auroc:{test_auroc:.4f} f1:{test_f1:.4f} cohen:{test_cohen:.4f}")
 
     #
     # auc
@@ -221,9 +222,11 @@ def wss95(y_true, y_pred):
 
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
-    data_path = "data/sex_diff_test.csv"
-    model_path = "models/pubmed_abstract/24.07_13.27/pubmed_abstract_epoch_9_13.37.33.pt"
-    bert_name = "pubmed_abstract"
+    data_path = "data/cns_test.csv"
+    # model_path = "models/pubmed_abstract/25.07_14.06/pubmed_abstract_epoch_6.pt"
+    # model_path = "models/pubmed_abstract/24.07_13.27/pubmed_abstract_epoch_9_13.37.33.pt"
+    model_path = "models/Original/cns.pt"
+    bert_name = "biobert"
     batch_size = 24
 
     test(bert_name, model_path, data_path, batch_size)
