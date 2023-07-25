@@ -1,12 +1,16 @@
+import gc
+import sys
+
 import nltk
 import numpy as np
 import pandas as pd
 import torch
 import itertools
 
+# import torchmetrics
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
-from torchmetrics.classification import BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa
+from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa
 from sklearn.metrics import confusion_matrix
 
 from classifier import BertClassifier
@@ -94,17 +98,45 @@ def test(bert_name, model_path, data_path, batch_size):
     fn = 0
     fp = 0
 
+    acc = BinaryAccuracy(threshold=0.5)
+    precision = BinaryPrecision(threshold=0.5)
+    recall = BinaryRecall(threshold=0.5)
+    recall_4 = BinaryRecall(threshold=0.4)
+    recall_3 = BinaryRecall(threshold=0.3)
+    auroc = BinaryAUROC(thresholds=5)
+    f1 = BinaryF1Score()
+    cohen = BinaryCohenKappa()
+
+    if use_cuda:
+        acc = acc.cuda()
+        precision = precision.cuda()
+        recall = recall.cuda()
+        recall_4 = recall_4.cuda()
+        recall_3 = recall_3.cuda()
+        auroc = auroc.cuda()
+        f1 = f1.cuda()
+        cohen = cohen.cuda()
+
     for train_input, train_label in test_dataloader:
 
-        train_label = train_label.to(device)
+        train_label = train_label.float().unsqueeze(-1).to(device)
         mask = train_input['attention_mask'].to(device)
         input_id = train_input['input_ids'].squeeze(1).to(device)
 
         output, attentions = model(input_id, mask)
-        full_output.append(output[:].detach().cpu().numpy())
+        # full_output.append(output[:].detach().cpu().numpy())
 
-        acc = (output.argmax(dim=1) == train_label).sum().item()
-        total_acc_train += acc
+        # acc = (output.argmax(dim=1) == train_label).sum().item()
+        # total_acc_train += acc
+
+        batch_acc = acc(output, train_label)
+        batch_precision = precision(output, train_label)
+        batch_recall = recall(output, train_label)
+        recall_4(output, train_label)
+        recall_3(output, train_label)
+        auroc(output, train_label)
+        batch_f1 = f1(output, train_label)
+        batch_cohen = cohen(output, train_label)
 
         for ind, out in enumerate(output.argmax(dim=1)):
             if out == 1 and train_label[ind] == 1:
@@ -114,35 +146,63 @@ def test(bert_name, model_path, data_path, batch_size):
             elif train_label[ind] == 0 and out == 1:
                 fp += 1
 
-    all_logits = []
-    for array in full_output:
-        all_logits.append(list(np.argmax(array, axis=1)[:]))
+        torch.cuda.empty_cache()
+        sys.stdout.flush()
+        gc.collect()
 
-    all_logits = list(itertools.chain.from_iterable(all_logits))
+    test_acc = acc.compute()
+    acc.reset()
 
-    true_vals = pd.get_dummies(test_data['Decision']).values
-    true_vals = list(np.argmax(true_vals, axis=1))
+    test_precision = precision.compute()
+    precision.reset()
 
-    metric = BinaryRecall()
-    recall = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    test_recall = recall.compute()
+    recall.reset()
+    test_recall4 = recall_4.compute()
+    recall_4.reset()
+    test_recall3 = recall_3.compute()
+    recall_3.reset()
 
-    metric = BinaryPrecision()
-    precision = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    test_auroc = auroc.compute()
+    auroc.reset()
 
-    metric = BinaryF1Score()
-    F1 = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    test_f1 = f1.compute()
+    f1.reset()
 
-    metric = BinaryCohenKappa()
-    cohen = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    test_cohen = cohen.compute()
+    cohen.reset()
 
-    # cohen
+    # all_logits = []
+    # for array in full_output:
+    #     all_logits.append(list(np.argmax(array, axis=1)[:]))
+    #
+    # all_logits = list(itertools.chain.from_iterable(all_logits))
+    #
+    # true_vals = pd.get_dummies(test_data['Decision']).values
+    # true_vals = list(np.argmax(true_vals, axis=1))
+    #
+    # metric = BinaryRecall()
+    # recall = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    #
+    # metric = BinaryPrecision()
+    # precision = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    #
+    # metric = BinaryF1Score()
+    # F1 = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    #
+    # metric = BinaryCohenKappa()
+    # cohen = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    #
+    # # cohen
+    #
+    # metric = BinaryAUROC()
+    # auc = metric(torch.tensor(all_logits), torch.tensor(true_vals))
 
-    metric = BinaryAUROC()
-    auc = metric(torch.tensor(all_logits), torch.tensor(true_vals))
+    # print(f"{auc}, {cohen}, {F1}, {precision}, {recall}")
+    print(f"acc:{test_acc} precision:{test_precision} recall:{test_recall} recall4:{test_recall4} recall3:{test_recall3} " 
+          f"auroc:{test_auroc} f1:{test_f1} cohen:{test_cohen}")
 
-    print(f"{auc}, {cohen}, {F1}, {precision}, {recall}")
-
-    print("end")
+    #
     # auc
 
 
@@ -164,6 +224,6 @@ if __name__ == "__main__":
     data_path = "data/sex_diff_test.csv"
     model_path = "models/pubmed_abstract/24.07_13.27/pubmed_abstract_epoch_9_13.37.33.pt"
     bert_name = "pubmed_abstract"
-    batch_size = 25
+    batch_size = 24
 
     test(bert_name, model_path, data_path, batch_size)
