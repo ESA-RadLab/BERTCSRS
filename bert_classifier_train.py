@@ -89,7 +89,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
           - epochs: the number of epochs for training
     """
     start_time = datetime.now()
-    save_path = os.path.join("classifier/models", model_name, start_time.strftime("%d.%m_%H.%M"))
+    save_path = os.path.join("models", model_name, start_time.strftime("%d.%m_%H.%M"))
     log_path = os.path.join(save_path, "logs")
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -262,8 +262,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         # model_name = "medbert" + str(epoch_num) + ".pt"
 
-        torch.save(model.state_dict(),
-                   os.path.join(save_path, f"{model_name}_epoch_{epoch_num}_{current_time.replace(':', '.')}.pt"))
+        model_path = os.path.join(save_path, f"{model_name}_epoch_{epoch_num}.pt")
+
+        torch.save(model.state_dict(), model_path)
+        model.load_state_dict(torch.load(model_path))
     summary_log.close()
 
 
@@ -282,7 +284,7 @@ if __name__ == "__main__":
     LR = 2e-5
     EPOCHS = 5
 
-    train('biobert', train_path, val_path, LR, EPOCHS, 25)
+    train('biobert', train_path, val_path, LR, EPOCHS, 25, 0.2)
     #
     # torch.save(model.state_dict(), "bio.pt")
     #
