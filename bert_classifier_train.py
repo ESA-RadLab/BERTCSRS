@@ -56,8 +56,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     print("Retrieving data")
     tokenizer = AutoTokenizer.from_pretrained(current_model)
-    train_dataloader = reader.load(train_path, val_path, tokenizer, batch_size)
-    val_dataloader = reader.load(val_path, val_path, tokenizer, batch_size)
+    train_dataloader = reader.load(train_path, tokenizer, batch_size)
+    val_dataloader = reader.load(val_path, tokenizer, batch_size)
 
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
