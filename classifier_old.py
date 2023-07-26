@@ -2,7 +2,7 @@ from torch import nn
 from transformers import BertModel
 
 
-class BertClassifier(nn.Module):
+class BertClassifierOld(nn.Module):
     """The classifier model. BERT with a classification output head.
   """
 
@@ -13,11 +13,9 @@ class BertClassifier(nn.Module):
           - model_type: the name of the BERT model from HuggingFace
           - droupout: rate of the dropout to be applied
     """
-        super(BertClassifier, self).__init__()
+        super(BertClassifierOld, self).__init__()
         self.bert = BertModel.from_pretrained(model_type, output_attentions=True)
-        # self.bert.train()
         self.dropout = nn.Dropout(dropout)
-        # self.relu = nn.ReLU()
         self.linear1 = nn.Linear(hidden, 2)
         self.activation = nn.Softmax()
 

@@ -2,88 +2,37 @@ import gc
 import os
 import sys
 import time
-from datetime import datetime
-from math import floor
-
-import numpy as np
-import pandas as pd
 import torch
 import torchmetrics
+import reader
+
+from datetime import datetime
+from math import floor
 from torch import nn
 from torch.optim import AdamW, lr_scheduler
-from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
-
 from classifier import BertClassifier
 
+
 model_options = {
-    "biobert": "dmis-lab/biobert-v1.1",
-    "pubmed_abstract": "microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract",
-    "scibert": "allenai/scibert_scivocab_uncased",
-    "pubmed_fulltext": "microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext",
-    "medbert": "Charangan/MedBERT",
-    "basebert": "bert-base-uncased",
-    "tinybert": "prajjwal1/bert-tiny",
-    "minibert": "prajjwal1/bert-mini",
-    "smallbert": "prajjwal1/bert-small",
-    "mediumbert": "prajjwal1/bert-medium"
+    "biobert": ["dmis-lab/biobert-v1.1", 768],
+    "pubmed_abstract": ["microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract", 768],
+    "scibert": ["allenai/scibert_scivocab_uncased", 768],
+    "pubmed_fulltext": ["microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract-fulltext", 768],
+    "medbert": ["Charangan/MedBERT", 768],
+    "basebert": ["bert-base-uncased", 768],
+    "tinybert": ["prajjwal1/bert-tiny", 128],
+    "minibert": ["prajjwal1/bert-mini", 256],
+    "smallbert": ["prajjwal1/bert-small", 512],
+    "mediumbert": ["prajjwal1/bert-medium", 512]
 }
-
-
-class Dataset(torch.utils.data.Dataset):
-    """PyTorch Dataset class for our systematic review datasets.
-    """
-
-    def __init__(self, df, current_model):
-        """Creates the dataset
-              Params:
-                df: dataset in a dataframe 
-        """
-
-        tokenizer = AutoTokenizer.from_pretrained(current_model)
-
-        labels_dict = {
-            'Excluded': 0,
-            'Included': 1,
-        }
-
-        # self.labels = []
-        # label = [0, 0]
-        # for decision in df['decision']:
-        #     label[labels_dict[decision]] = 1
-        #     self.labels.append(label)
-        #     label = [0, 0]
-
-        self.labels = [labels_dict[label] for label in df['decision']]
-
-        self.texts = [tokenizer(text, padding='max_length', max_length=256, truncation=True,
-                                return_tensors="pt") for text in df['titleabstract']]
-
-    def classes(self):
-        return self.labels
-
-    def __len__(self):
-        return len(self.labels)
-
-    def get_batch_labels(self, idx):
-        # Fetch a batch of labels
-        return np.array(self.labels[idx])
-
-    def get_batch_texts(self, idx):
-        # Fetch a batch of inputs
-        return self.texts[idx]
-
-    def __getitem__(self, idx):
-        batch_texts = self.get_batch_texts(idx)
-        batch_y = self.get_batch_labels(idx)
-        return batch_texts, batch_y
 
 
 def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout):
     """ Function to train the model.
         Params:
           - model: the model to be trained
-          - train_data: traing data (Pandas DataFrame format)
+          - train_data: training data (Pandas DataFrame format)
           - val_data: validation data (Pandas DataFrame format)
           - learning_rate: learning rate
           - epochs: the number of epochs for training
@@ -96,37 +45,35 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
-    summary_log = open(os.path.join(log_path, "summary"), 'w')
+    summary_log = open(os.path.join(save_path, "#summary"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
 
-    current_model = model_options[model_name]
+    current_model = model_options[model_name][0]
+    hidden_layer = model_options[model_name][1]
 
     print("Get model")
-    model = BertClassifier(hidden=768, model_type=current_model, dropout=dropout)  # 768 or 128
+    model = BertClassifier(hidden=hidden_layer, model_type=current_model, dropout=dropout)
 
     print("Retrieving data")
-    train_data = pd.read_csv(train_path)
-    val_data = pd.read_csv(val_path)
-    train_set, val = Dataset(train_data, current_model), Dataset(val_data, current_model)
-
-    train_dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=0)
-    val_dataloader = torch.utils.data.DataLoader(val, batch_size=30)
-
-    use_cuda = torch.cuda.is_available()
-    device = torch.device("cuda" if use_cuda else "cpu")
+    tokenizer = AutoTokenizer.from_pretrained(current_model)
+    train_dataloader = reader.load(train_path, val_path, tokenizer, batch_size)
+    val_dataloader = reader.load(val_path, val_path, tokenizer, batch_size)
 
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
     criterion = nn.BCELoss()
+    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
+
     acc = torchmetrics.classification.BinaryAccuracy(threshold=0.5)
     precision = torchmetrics.classification.BinaryPrecision(threshold=0.5)
     recall = torchmetrics.classification.BinaryRecall(threshold=0.5)
 
-    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
-
-    num_training_steps = epochs * len(train_dataloader)
+    # num_training_steps = epochs * len(train_dataloader)
     # lr_schedule = lr_scheduler.ReduceLROnPlateau(optimizer=optimizer)
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
 
     if use_cuda:
         model = model.cuda()
@@ -200,6 +147,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             log = f"[{epoch_num}/{epochs}]: [{i}/{length}] loss:{batch_loss:.5f} " \
                   f"lr:{learning_rate:.6f} elapsed time: {elapsed_hours:.0f}:{elapsed_minutes:.0f}:{elapsed_seconds:.0f} " \
                   f"time remaining: {remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
+
             epoch_log.write(log + "\n")
             print(log)
 
@@ -229,7 +177,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 val_loss = criterion(output, val_label)
                 total_loss_val += val_loss.item()
 
-                result = output.argmax(dim=1).unsqueeze(-1)
+                # result = output.argmax(dim=1).unsqueeze(-1)
 
                 batch_acc = acc(output, val_label)
                 batch_precision = precision(output, val_label)
@@ -260,32 +208,20 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print(train_log)
         print(val_log)
 
-        # model_name = "medbert" + str(epoch_num) + ".pt"
-
         model_path = os.path.join(save_path, f"{model_name}_epoch_{epoch_num}.pt")
 
         torch.save(model.state_dict(), model_path)
         model.load_state_dict(torch.load(model_path))
+
     summary_log.close()
 
 
 if __name__ == "__main__":
-    # nltk.download('stopwords')
-
-    # pick the model and create the tokenizer
-
-    # read the training & validation data
     train_path = os.path.join("data", "sex_diff_train.csv")
     val_path = os.path.join("data", "sex_diff_val.csv")
-
-    #
-    # model = BertClassifier(hidden=768, model_type=current_model)
 
     LR = 2e-5
     EPOCHS = 5
 
-    train('biobert', train_path, val_path, LR, EPOCHS, 25, 0.2)
-    #
-    # torch.save(model.state_dict(), "bio.pt")
-    #
-    # model.load_state_dict(torch.load("bio.pt"))
+    train('tinybert', train_path, val_path, LR, EPOCHS, 25, 0.2)
+
