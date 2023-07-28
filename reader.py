@@ -29,7 +29,7 @@ class Reader(Dataset):
         else:
             self.labels = [labels_dict[label] for label in df['decision']]
 
-        self.texts = [tokenizer(text, padding='max_length', max_length=256, truncation=True,
+        self.texts = [tokenizer(text, padding='max_length', max_length=512, truncation=True,
                                 return_tensors="pt") for text in df['titleabstract']]
 
     def classes(self):

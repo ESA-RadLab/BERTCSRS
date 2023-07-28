@@ -55,7 +55,7 @@ def format_batch_texts(language_code, batch_texts):
 
 # declare the name of the file you want to use
 file_name = "cns_train_new1.csv"
-file_path = "../data/" + file_name
+file_path = "data/" + file_name
 
 # In[9]:
 
@@ -71,7 +71,7 @@ def perform_translation(batch_texts, model, tokenizer, language="fr"):
     formated_batch_texts = format_batch_texts(language, batch_texts)
 
     # Generate translation using model
-    translated = model.generate(**tokenizer(formated_batch_texts, return_tensors="pt", padding=True).to(device))
+    translated = model.generate(**tokenizer(formated_batch_texts, return_tensors="pt", padding=True, truncation=True).to(device))
 
     # Convert the generated tokens indices back into text
     translated_texts = [tokenizer.decode(t, skip_special_tokens=True) for t in translated]
@@ -99,10 +99,10 @@ for index, row in train_data.iterrows():
         for i in range(2, len(lt), 2):
             cur_text = ""
             for sen in lt[prev:i]:
-                translated_texts = perform_translation(sen, first_model, first_model_tkn)
-                if len(translated_texts[0]) > 512:
+                if len(sen) > 512:
                     cur_text = cur_text + sen
                     continue
+                translated_texts = perform_translation(sen, first_model, first_model_tkn)
                 back_translated_texts = perform_translation(translated_texts, second_model, second_model_tkn)
                 REPLACE_BY_SPACE_RE = re.compile('[{}\[\]|@,;\'"]')
                 new_text = REPLACE_BY_SPACE_RE.sub(' ', back_translated_texts[0])
