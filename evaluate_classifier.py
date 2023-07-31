@@ -6,7 +6,7 @@ import torch
 import reader
 
 from transformers import AutoTokenizer
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa
+from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore
 from sklearn.metrics import confusion_matrix
 from classifier_old import BertClassifierOld
 from classifier import BertClassifier
@@ -54,21 +54,25 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
     acc = BinaryAccuracy(threshold=0.5)
     precision = BinaryPrecision(threshold=0.5)
+    precision_3 = BinaryPrecision(threshold=0.3)
+    precision_1 = BinaryPrecision(threshold=0.1)
     recall = BinaryRecall(threshold=0.5)
-    recall_4 = BinaryRecall(threshold=0.4)
+    recall_1 = BinaryRecall(threshold=0.1)
     recall_3 = BinaryRecall(threshold=0.3)
     auroc = BinaryAUROC(thresholds=5)
-    f1 = BinaryF1Score()
+    fB = BinaryFBetaScore(beta=2)
     cohen = BinaryCohenKappa()
 
     if use_cuda:
         acc = acc.cuda()
         precision = precision.cuda()
+        precision_3 = precision_3.cuda()
+        precision_1 = precision_1.cuda()
         recall = recall.cuda()
-        recall_4 = recall_4.cuda()
+        recall_1 = recall_1.cuda()
         recall_3 = recall_3.cuda()
         auroc = auroc.cuda()
-        f1 = f1.cuda()
+        fB = fB.cuda()
         cohen = cohen.cuda()
 
     for train_input, train_label in test_dataloader:
@@ -88,12 +92,15 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
         batch_acc = acc(output, train_label)
         batch_precision = precision(output, train_label)
+        precision_3(output, train_label)
+        precision_1(output, train_label)
         batch_recall = recall(output, train_label)
-        recall_4(output, train_label)
+        recall_1(output, train_label)
         recall_3(output, train_label)
         auroc(output, train_label)
-        batch_f1 = f1(output, train_label)
+        batch_fB = fB(output, train_label)
         batch_cohen = cohen(output, train_label)
+
 
         torch.cuda.empty_cache()
         sys.stdout.flush()
@@ -104,25 +111,29 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
     test_precision = precision.compute()
     precision.reset()
+    test_precision_3 = precision_3.compute()
+    precision_3.reset()
+    test_precision_1 = precision_1.compute()
+    precision_1.reset()
 
     test_recall = recall.compute()
     recall.reset()
-    test_recall4 = recall_4.compute()
-    recall_4.reset()
+    test_recall1 = recall_1.compute()
+    recall_1.reset()
     test_recall3 = recall_3.compute()
     recall_3.reset()
 
     test_auroc = auroc.compute()
     auroc.reset()
 
-    test_f1 = f1.compute()
-    f1.reset()
+    test_fB = fB.compute()
+    fB.reset()
 
     test_cohen = cohen.compute()
     cohen.reset()
 
-    print(f"acc:{test_acc:.4f} precision:{test_precision:.4f} recall:{test_recall:.4f} recall4:{test_recall4:.4f} recall3:{test_recall3:.4f} " 
-          f"auroc:{test_auroc:.4f} f1:{test_f1:.4f} cohen:{test_cohen:.4f}")
+    print(f"acc:{test_acc:.4f} precision:{test_precision:.4f} recall:{test_recall:.4f} precision3:{test_precision_3:.4f} recall3:{test_recall3:.4f} precision1:{test_precision_1:.4f} recall1:{test_recall1:.4f} " 
+          f"auroc:{test_auroc:.4f} fBeta:{test_fB:.4f}")
 
 
 # def wss(R, y_true, y_pred):
@@ -145,7 +156,7 @@ if __name__ == "__main__":
     # model_path = "models/pubmed_abstract/24.07_13.27/pubmed_abstract_epoch_9_13.37.33.pt"
     model_path = "models/Original/sex_diff.pt"
     bert_name = "pubmed_abstract"  # sex_diff: pubmed_abstract cns: biobert
-    batch_size = 24
+    batch_size = 10
 
     test(bert_name, model_path, data_path, batch_size, True)
     # test(bert_name, model_path, data_path, batch_size)
