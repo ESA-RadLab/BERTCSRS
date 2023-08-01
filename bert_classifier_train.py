@@ -70,7 +70,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     recall = torchmetrics.classification.BinaryRecall(threshold=0.5)
 
     # num_training_steps = epochs * len(train_dataloader)
-    # lr_schedule = lr_scheduler.ReduceLROnPlateau(optimizer=optimizer)
+    lr_schedule = lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=0.1)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -128,9 +128,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             sys.stdout.flush()
             gc.collect()
 
-            #     lr_schedule.step(val_loss)
-            #     learning_rate = optimizer.param_groups[0]["lr"]
-
             step_time = time.time()
             elapsed_time = step_time - time_begin
             batch_time = elapsed_time / i
@@ -186,6 +183,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 sys.stdout.flush()
                 gc.collect()
 
+        lr_schedule.step()
+        learning_rate = optimizer.param_groups[0]["lr"]
+
         val_acc = acc.compute()
         acc.reset()
 
@@ -217,8 +217,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
 
 if __name__ == "__main__":
-    train_path = os.path.join("data", "sex_diff_train.csv")
-    val_path = os.path.join("data", "sex_diff_val.csv")
+    train_path = os.path.join("data", "cns_balanced_new.csv")
+    val_path = os.path.join("data", "cns_val_new1.csv")
 
     LR = 2e-5
     EPOCHS = 5

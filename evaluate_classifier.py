@@ -53,18 +53,25 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     torch.cuda.empty_cache()
 
     acc = BinaryAccuracy(threshold=0.5)
+    acc_3 = BinaryAccuracy(threshold=0.3)
+    acc_1 = BinaryAccuracy(threshold=0.1)
     precision = BinaryPrecision(threshold=0.5)
     precision_3 = BinaryPrecision(threshold=0.3)
     precision_1 = BinaryPrecision(threshold=0.1)
     recall = BinaryRecall(threshold=0.5)
     recall_1 = BinaryRecall(threshold=0.1)
     recall_3 = BinaryRecall(threshold=0.3)
-    auroc = BinaryAUROC(thresholds=5)
-    fB = BinaryFBetaScore(beta=2)
+    auroc = BinaryAUROC(thresholds=10)
+    fB = BinaryFBetaScore(beta=2, threshold=0.5)
+    fB_3 = BinaryFBetaScore(beta=2, threshold=0.3)
+    fB_1 = BinaryFBetaScore(beta=2, threshold=0.1)
+
     cohen = BinaryCohenKappa()
 
     if use_cuda:
         acc = acc.cuda()
+        acc_3 = acc_3.cuda()
+        acc_1 = acc_1.cuda()
         precision = precision.cuda()
         precision_3 = precision_3.cuda()
         precision_1 = precision_1.cuda()
@@ -73,6 +80,8 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         recall_3 = recall_3.cuda()
         auroc = auroc.cuda()
         fB = fB.cuda()
+        fB_3 = fB_3.cuda()
+        fB_1 = fB_1.cuda()
         cohen = cohen.cuda()
 
     for train_input, train_label in test_dataloader:
@@ -91,6 +100,8 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         # total_acc_train += acc
 
         batch_acc = acc(output, train_label)
+        acc_3(output, train_label)
+        acc(output, train_label)
         batch_precision = precision(output, train_label)
         precision_3(output, train_label)
         precision_1(output, train_label)
@@ -99,6 +110,8 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         recall_3(output, train_label)
         auroc(output, train_label)
         batch_fB = fB(output, train_label)
+        fB_3(output, train_label)
+        fB_1(output, train_label)
         batch_cohen = cohen(output, train_label)
 
 
@@ -108,12 +121,16 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
     test_acc = acc.compute()
     acc.reset()
+    test_acc3 = acc_3.compute()
+    acc_3.reset()
+    test_acc1 = acc_1.compute()
+    acc_1.reset()
 
     test_precision = precision.compute()
     precision.reset()
-    test_precision_3 = precision_3.compute()
+    test_precision3 = precision_3.compute()
     precision_3.reset()
-    test_precision_1 = precision_1.compute()
+    test_precision1 = precision_1.compute()
     precision_1.reset()
 
     test_recall = recall.compute()
@@ -128,12 +145,16 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
     test_fB = fB.compute()
     fB.reset()
+    test_fB3 = fB_3.compute()
+    fB_3.reset()
+    test_fB1 = fB_1.compute()
+    fB_1.reset()
 
     test_cohen = cohen.compute()
     cohen.reset()
 
-    print(f"acc:{test_acc:.4f} precision:{test_precision:.4f} recall:{test_recall:.4f} precision3:{test_precision_3:.4f} recall3:{test_recall3:.4f} precision1:{test_precision_1:.4f} recall1:{test_recall1:.4f} " 
-          f"auroc:{test_auroc:.4f} fBeta:{test_fB:.4f}")
+    print(f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall1:{test_recall1:.4f} precision1:{test_precision1:.4f} fBeta1:{test_fB1:.4f} acc1:{test_acc1:.4f} " 
+          f"auroc:{test_auroc:.4f}")
 
 
 # def wss(R, y_true, y_pred):
