@@ -70,7 +70,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     recall = torchmetrics.classification.BinaryRecall(threshold=0.5)
 
     # num_training_steps = epochs * len(train_dataloader)
-    lr_schedule = lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=0.1)
+    lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=5, gamma=0.1)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")

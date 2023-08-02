@@ -62,9 +62,9 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     recall_1 = BinaryRecall(threshold=0.1)
     recall_3 = BinaryRecall(threshold=0.3)
     auroc = BinaryAUROC(thresholds=10)
-    fB = BinaryFBetaScore(beta=2, threshold=0.5)
-    fB_3 = BinaryFBetaScore(beta=2, threshold=0.3)
-    fB_1 = BinaryFBetaScore(beta=2, threshold=0.1)
+    fB = BinaryFBetaScore(beta=2., threshold=0.5)
+    fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
+    fB_1 = BinaryFBetaScore(beta=2., threshold=0.1)
 
     cohen = BinaryCohenKappa()
 
@@ -101,7 +101,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
         batch_acc = acc(output, train_label)
         acc_3(output, train_label)
-        acc(output, train_label)
+        acc_1(output, train_label)
         batch_precision = precision(output, train_label)
         precision_3(output, train_label)
         precision_1(output, train_label)
