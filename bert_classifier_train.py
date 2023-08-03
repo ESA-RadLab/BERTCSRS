@@ -52,7 +52,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     hidden_layer = model_options[model_name][1]
 
     print("Get model")
-    model = BertClassifier(hidden=hidden_layer, model_type=current_model, dropout=dropout)
+    model = BertClassifier(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
 
     print("Retrieving data")
     tokenizer = AutoTokenizer.from_pretrained(current_model)
@@ -62,7 +62,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
-    criterion = nn.BCELoss()
+    pos_weight = torch.tensor([2])
+    criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
     acc = torchmetrics.classification.BinaryAccuracy(threshold=0.5)
@@ -217,11 +218,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
 
 if __name__ == "__main__":
-    train_path = os.path.join("data", "cns_balanced_new.csv")
+    train_path = os.path.join("data", "cns_balanced_new1.csv")
     val_path = os.path.join("data", "cns_val_new1.csv")
 
     LR = 2e-5
-    EPOCHS = 5
+    EPOCHS = 10
 
-    train('tinybert', train_path, val_path, LR, EPOCHS, 25, 0.2)
+    train('tinybert', train_path, val_path, LR, EPOCHS, 15, 0.2)
 

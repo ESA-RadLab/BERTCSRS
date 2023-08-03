@@ -6,7 +6,7 @@ class BertClassifier(nn.Module):
     """The classifier model. BERT with a classification output head.
   """
 
-    def __init__(self, hidden, model_type, dropout=0.2):
+    def __init__(self, hidden, model_type, dropout=0.2, sigma=True):
         """ Create the BertClassifier.
         Params:
           - hidden: the size of the hidden layer
@@ -21,7 +21,9 @@ class BertClassifier(nn.Module):
         self.linear1 = nn.Linear(hidden, 50)
         self.linear2 = nn.Linear(50, 25)
         self.linear3 = nn.Linear(25, 1)
-        self.activation = nn.Sigmoid()
+        if sigma:
+            self.activation = nn.Sigmoid()
+        self.sigma = sigma
 
     def forward(self, input_id, mask):
         """ The forward pass of the BERT classifier.
@@ -37,5 +39,10 @@ class BertClassifier(nn.Module):
         hidden_layer1 = self.linear1(self.dropout(self.relu(pooled_output)))
         hidden_layer2 = self.linear2(self.dropout(self.relu(hidden_layer1)))
         hidden_layer3 = self.linear3(self.dropout(self.relu(hidden_layer2)))
-        final_layer = self.activation(hidden_layer3)
-        return final_layer, bert_outputs
+        if self.sigma:
+            final_layer = self.activation(hidden_layer3)
+            return final_layer, bert_outputs
+        else:
+            return hidden_layer3, bert_outputs
+
+
