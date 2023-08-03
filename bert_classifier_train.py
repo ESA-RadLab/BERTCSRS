@@ -62,7 +62,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
-    pos_weight = torch.tensor([2])
+    pos_weight = torch.tensor([5])
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
@@ -71,7 +71,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     recall = torchmetrics.classification.BinaryRecall(threshold=0.5)
 
     # num_training_steps = epochs * len(train_dataloader)
-    lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=5, gamma=0.1)
+    lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=2, gamma=0.5)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -218,11 +218,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
 
 if __name__ == "__main__":
-    train_path = os.path.join("data", "cns_balanced_new1.csv")
+    train_path = os.path.join("data", "cns_train_new1.csv")
     val_path = os.path.join("data", "cns_val_new1.csv")
 
     LR = 2e-5
     EPOCHS = 10
 
-    train('tinybert', train_path, val_path, LR, EPOCHS, 15, 0.2)
+    train('smallbert', train_path, val_path, LR, EPOCHS, 15, 0.2)
 
