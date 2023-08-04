@@ -54,17 +54,17 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
     acc = BinaryAccuracy(threshold=0.5)
     acc_3 = BinaryAccuracy(threshold=0.3)
-    acc_1 = BinaryAccuracy(threshold=0.1)
+    acc_1 = BinaryAccuracy(threshold=0.2)
     precision = BinaryPrecision(threshold=0.5)
     precision_3 = BinaryPrecision(threshold=0.3)
-    precision_1 = BinaryPrecision(threshold=0.1)
+    precision_1 = BinaryPrecision(threshold=0.2)
     recall = BinaryRecall(threshold=0.5)
-    recall_1 = BinaryRecall(threshold=0.1)
+    recall_1 = BinaryRecall(threshold=0.2)
     recall_3 = BinaryRecall(threshold=0.3)
     auroc = BinaryAUROC(thresholds=10)
     fB = BinaryFBetaScore(beta=2., threshold=0.5)
     fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
-    fB_1 = BinaryFBetaScore(beta=2., threshold=0.1)
+    fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
 
     cohen = BinaryCohenKappa()
 
@@ -172,12 +172,12 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
-    data_path = "data/sex_diff_test.csv"
+    data_path = "data/cns_test_new1.csv"
     # model_path = "models/pubmed_abstract/25.07_14.06/pubmed_abstract_epoch_6.pt"
     # model_path = "models/pubmed_abstract/24.07_13.27/pubmed_abstract_epoch_9_13.37.33.pt"
-    model_path = "models/Original/sex_diff.pt"
-    bert_name = "pubmed_abstract"  # sex_diff: pubmed_abstract cns: biobert
+    model_path = "models/smallbert/03.08_11.55/smallbert_epoch_6.pt"
+    bert_name = "smallbert"  # sex_diff: pubmed_abstract cns: biobert
     batch_size = 10
 
-    test(bert_name, model_path, data_path, batch_size, True)
-    # test(bert_name, model_path, data_path, batch_size)
+    # test(bert_name, model_path, data_path, batch_size, True)
+    test(bert_name, model_path, data_path, batch_size)

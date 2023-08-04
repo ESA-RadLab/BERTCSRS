@@ -62,7 +62,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
-    pos_weight = torch.tensor([5])
+    pos_weight = torch.tensor([4])
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
