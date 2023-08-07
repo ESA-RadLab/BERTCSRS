@@ -4,6 +4,8 @@ import sys
 import time
 import torch
 import torchmetrics
+from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryAUROC, BinaryFBetaScore
+
 import reader
 
 from datetime import datetime
@@ -45,7 +47,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
-    summary_log = open(os.path.join(save_path, "#summary"), 'w')
+    summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
 
     current_model = model_options[model_name][0]
@@ -66,9 +68,19 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
-    acc = torchmetrics.classification.BinaryAccuracy(threshold=0.5)
-    precision = torchmetrics.classification.BinaryPrecision(threshold=0.5)
-    recall = torchmetrics.classification.BinaryRecall(threshold=0.5)
+    acc = BinaryAccuracy(threshold=0.5)
+    acc_3 = BinaryAccuracy(threshold=0.3)
+    acc_1 = BinaryAccuracy(threshold=0.2)
+    precision = BinaryPrecision(threshold=0.5)
+    precision_3 = BinaryPrecision(threshold=0.3)
+    precision_1 = BinaryPrecision(threshold=0.2)
+    recall = BinaryRecall(threshold=0.5)
+    recall_1 = BinaryRecall(threshold=0.2)
+    recall_3 = BinaryRecall(threshold=0.3)
+    auroc = BinaryAUROC(thresholds=10)
+    fB = BinaryFBetaScore(beta=2., threshold=0.5)
+    fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
+    fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
 
     # num_training_steps = epochs * len(train_dataloader)
     # lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=2, gamma=0.5)
@@ -80,8 +92,18 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         model = model.cuda()
         criterion = criterion.cuda()
         acc = acc.cuda()
+        acc_3 = acc_3.cuda()
+        acc_1 = acc_1.cuda()
         precision = precision.cuda()
+        precision_3 = precision_3.cuda()
+        precision_1 = precision_1.cuda()
         recall = recall.cuda()
+        recall_1 = recall_1.cuda()
+        recall_3 = recall_3.cuda()
+        auroc = auroc.cuda()
+        fB = fB.cuda()
+        fB_3 = fB_3.cuda()
+        fB_1 = fB_1.cuda()
         print("Using Cuda")
 
     print("Training")
@@ -96,7 +118,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         current_time = current_time.strftime("%H:%M:%S")
         print(f"epoch: {epoch_num} time: {current_time}")
         i = 0
-        epoch_log = open(os.path.join(log_path, "epoch_log " + str(epoch_num)), 'w')
+        epoch_log = open(os.path.join(log_path, "epoch_log " + str(epoch_num), ".txt"), 'w')
 
         for train_input, train_label in train_dataloader:
             i += 1
@@ -117,8 +139,18 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             # result = output.argmax(dim=1).unsqueeze(-1)
 
             batch_acc = acc(output, train_label)
+            acc_3(output, train_label)
+            acc_1(output, train_label)
             batch_precision = precision(output, train_label)
+            precision_3(output, train_label)
+            precision_1(output, train_label)
             batch_recall = recall(output, train_label)
+            recall_1(output, train_label)
+            recall_3(output, train_label)
+            auroc(output, train_label)
+            batch_fB = fB(output, train_label)
+            fB_3(output, train_label)
+            fB_1(output, train_label)
 
             batch_loss.backward()
 
@@ -154,12 +186,34 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         train_acc = acc.compute()
         acc.reset()
+        # train_acc3 = acc_3.compute()
+        # acc_3.reset()
+        # train_acc1 = acc_1.compute()
+        # acc_1.reset()
 
         train_precision = precision.compute()
         precision.reset()
+        # train_precision3 = precision_3.compute()
+        # precision_3.reset()
+        # train_precision1 = precision_1.compute()
+        # precision_1.reset()
 
         train_recall = recall.compute()
         recall.reset()
+        # train_recall1 = recall_1.compute()
+        # recall_1.reset()
+        # train_recall3 = recall_3.compute()
+        # recall_3.reset()
+
+        # train_auroc = auroc.compute()
+        # auroc.reset()
+
+        # train_fB = fB.compute()
+        # fB.reset()
+        # train_fB3 = fB_3.compute()
+        # fB_3.reset()
+        # train_fB1 = fB_1.compute()
+        # fB_1.reset()
 
         total_loss_val = 0
         print("Validating")
@@ -189,15 +243,40 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         val_acc = acc.compute()
         acc.reset()
+        val_acc3 = acc_3.compute()
+        acc_3.reset()
+        val_acc1 = acc_1.compute()
+        acc_1.reset()
 
         val_precision = precision.compute()
         precision.reset()
+        val_precision3 = precision_3.compute()
+        precision_3.reset()
+        val_precision1 = precision_1.compute()
+        precision_1.reset()
 
         val_recall = recall.compute()
         recall.reset()
+        val_recall1 = recall_1.compute()
+        recall_1.reset()
+        val_recall3 = recall_3.compute()
+        recall_3.reset()
+
+        val_auroc = auroc.compute()
+        auroc.reset()
+
+        val_fB = fB.compute()
+        fB.reset()
+        val_fB3 = fB_3.compute()
+        fB_3.reset()
+        val_fB1 = fB_1.compute()
+        fB_1.reset()
 
         train_log = f"EPOCH {epoch_num} TRAIN avloss: {(total_loss_train / len(train_dataloader)):.6f} Acc: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
-        val_log = f"EPOCH {epoch_num} VALID avloss: {(total_loss_val / len(val_dataloader)):.6f} Acc: {val_acc:.6f} Recall: {val_recall:.4f} Precision: {val_precision:.4f}"
+        val_log = f"EPOCH {epoch_num} VALID avloss: {(total_loss_val / len(val_dataloader)):.6f} \n" \
+                  f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
+                  f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
+                  f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n"
 
         epoch_log.write(train_log + "\n")
         epoch_log.write(val_log)
@@ -224,5 +303,5 @@ if __name__ == "__main__":
     LR = 2e-5
     EPOCHS = 10
 
-    train('smallbert', train_path, val_path, LR, EPOCHS, 15, 0.2)
+    train('mediumbert', train_path, val_path, LR, EPOCHS, 15, 0.2)
 

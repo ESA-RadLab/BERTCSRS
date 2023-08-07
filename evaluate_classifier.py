@@ -1,12 +1,14 @@
 import gc
+import os
 import sys
 import nltk
 import numpy as np
 import torch
 import reader
+import matplotlib as mpl
 
 from transformers import AutoTokenizer
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore
+from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
 from sklearn.metrics import confusion_matrix
 from classifier_old import BertClassifierOld
 from classifier import BertClassifier
@@ -66,7 +68,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
 
-    cohen = BinaryCohenKappa()
+    # cohen = BinaryPrecisionRecallCurve(thresholds=10)
 
     if use_cuda:
         acc = acc.cuda()
@@ -82,7 +84,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         fB = fB.cuda()
         fB_3 = fB_3.cuda()
         fB_1 = fB_1.cuda()
-        cohen = cohen.cuda()
+        # cohen = cohen.cuda()
 
     for train_input, train_label in test_dataloader:
         # train_label = train_label.float().unsqueeze(-1).to(device)
@@ -112,8 +114,8 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         batch_fB = fB(output, train_label)
         fB_3(output, train_label)
         fB_1(output, train_label)
-        batch_cohen = cohen(output, train_label)
 
+        # cohen(output, train_label.int())
 
         torch.cuda.empty_cache()
         sys.stdout.flush()
@@ -150,10 +152,12 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     test_fB1 = fB_1.compute()
     fB_1.reset()
 
-    test_cohen = cohen.compute()
-    cohen.reset()
+    # test_cohen = cohen.compute()
+    # cohen.reset()
 
-    print(f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall1:{test_recall1:.4f} precision1:{test_precision1:.4f} fBeta1:{test_fB1:.4f} acc1:{test_acc1:.4f} " 
+    # fig_, ax_ = cohen.plot()
+
+    print(f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall2:{test_recall1:.4f} precision2:{test_precision1:.4f} fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} " 
           f"auroc:{test_auroc:.4f}")
 
 
@@ -172,12 +176,14 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
-    data_path = "data/cns_test_new1.csv"
-    # model_path = "models/pubmed_abstract/25.07_14.06/pubmed_abstract_epoch_6.pt"
-    # model_path = "models/pubmed_abstract/24.07_13.27/pubmed_abstract_epoch_9_13.37.33.pt"
-    model_path = "models/smallbert/03.08_11.55/smallbert_epoch_6.pt"
-    bert_name = "smallbert"  # sex_diff: pubmed_abstract cns: biobert
-    batch_size = 10
+    modelname = "mediumbert"
+    version = "04.08_14.30"
+    epoch = 5
 
+    data_path = os.path.join("data", "cns_test_new1.csv")
+    model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
+
+    batch_size = 12
+
+    test(modelname, model_path, data_path, batch_size)
     # test(bert_name, model_path, data_path, batch_size, True)
-    test(bert_name, model_path, data_path, batch_size)
