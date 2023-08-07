@@ -18,8 +18,8 @@ class BertClassifier(nn.Module):
         # self.bert.train()
         self.dropout = nn.Dropout(dropout)
         self.relu = nn.ReLU()
-        self.linear1 = nn.Linear(hidden, 50)
-        self.linear2 = nn.Linear(50, 25)
+        self.linear1 = nn.Linear(hidden, 25)
+        # self.linear2 = nn.Linear(50, 25)
         self.linear3 = nn.Linear(25, 1)
         if sigma:
             self.activation = nn.Sigmoid()
@@ -37,8 +37,8 @@ class BertClassifier(nn.Module):
         bert_outputs = self.bert(input_ids=input_id, attention_mask=mask)
         pooled_output = bert_outputs['pooler_output']
         hidden_layer1 = self.linear1(self.dropout(self.relu(pooled_output)))
-        hidden_layer2 = self.linear2(self.dropout(self.relu(hidden_layer1)))
-        hidden_layer3 = self.linear3(self.dropout(self.relu(hidden_layer2)))
+        # hidden_layer2 = self.linear2(self.dropout(self.relu(hidden_layer1)))
+        hidden_layer3 = self.linear3(self.dropout(self.relu(hidden_layer1)))
         if self.sigma:
             final_layer = self.activation(hidden_layer3)
             return final_layer, bert_outputs
