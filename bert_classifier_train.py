@@ -118,7 +118,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         current_time = current_time.strftime("%H:%M:%S")
         print(f"epoch: {epoch_num} time: {current_time}")
         i = 0
-        epoch_log = open(os.path.join(log_path, "epoch_log " + str(epoch_num), ".txt"), 'w')
+        epoch_log = open(os.path.join(log_path, "epoch_log " + str(epoch_num) + ".txt"), 'w')
 
         for train_input, train_label in train_dataloader:
             i += 1
@@ -138,19 +138,19 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
             # result = output.argmax(dim=1).unsqueeze(-1)
 
-            batch_acc = acc(output, train_label)
-            acc_3(output, train_label)
-            acc_1(output, train_label)
-            batch_precision = precision(output, train_label)
-            precision_3(output, train_label)
-            precision_1(output, train_label)
-            batch_recall = recall(output, train_label)
-            recall_1(output, train_label)
-            recall_3(output, train_label)
-            auroc(output, train_label)
-            batch_fB = fB(output, train_label)
-            fB_3(output, train_label)
-            fB_1(output, train_label)
+            acc(output, train_label)
+            # acc_3(output, train_label)
+            # acc_1(output, train_label)
+            precision(output, train_label)
+            # precision_3(output, train_label)
+            # precision_1(output, train_label)
+            recall(output, train_label)
+            # recall_1(output, train_label)
+            # recall_3(output, train_label)
+            # auroc(output, train_label)
+            fB(output, train_label)
+            # fB_3(output, train_label)
+            # fB_1(output, train_label)
 
             batch_loss.backward()
 
@@ -229,11 +229,25 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 val_loss = criterion(output, val_label)
                 total_loss_val += val_loss.item()
 
+                acc(output, train_label)
+                acc_3(output, train_label)
+                acc_1(output, train_label)
+                precision(output, train_label)
+                precision_3(output, train_label)
+                precision_1(output, train_label)
+                recall(output, train_label)
+                recall_1(output, train_label)
+                recall_3(output, train_label)
+                auroc(output, train_label)
+                fB(output, train_label)
+                fB_3(output, train_label)
+                fB_1(output, train_label)
+
                 # result = output.argmax(dim=1).unsqueeze(-1)
 
-                batch_acc = acc(output, val_label)
-                batch_precision = precision(output, val_label)
-                batch_recall = recall(output, val_label)
+                # batch_acc = acc(output, val_label)
+                # batch_precision = precision(output, val_label)
+                # batch_recall = recall(output, val_label)
 
                 sys.stdout.flush()
                 gc.collect()
@@ -276,7 +290,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         val_log = f"EPOCH {epoch_num} VALID avloss: {(total_loss_val / len(val_dataloader)):.6f} \n" \
                   f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
                   f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
-                  f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n"
+                  f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n auroc: {val_auroc}"
 
         epoch_log.write(train_log + "\n")
         epoch_log.write(val_log)
