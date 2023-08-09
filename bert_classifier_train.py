@@ -54,6 +54,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     hidden_layer = model_options[model_name][1]
 
     print("Get model")
+    # torch.manual_seed(5223)
     model = BertClassifier(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
 
     print("Retrieving data")
@@ -83,7 +84,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
 
     # num_training_steps = epochs * len(train_dataloader)
-    # lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=2, gamma=0.5)
+    lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=2, gamma=0.5)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -252,7 +253,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 sys.stdout.flush()
                 gc.collect()
 
-        # lr_schedule.step()
+        lr_schedule.step()
         learning_rate = optimizer.param_groups[0]["lr"]
 
         val_acc = acc.compute()
