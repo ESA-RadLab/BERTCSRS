@@ -18,9 +18,9 @@ class BertClassifier(nn.Module):
         # self.bert.train()
         self.dropout = nn.Dropout(dropout)
         self.relu = nn.ReLU()
-        self.linear1 = nn.Linear(hidden, 25)
+        self.linear1 = nn.Linear(hidden, 50)
         # self.linear2 = nn.Linear(50, 25)
-        self.linear3 = nn.Linear(25, 1)
+        self.linear3 = nn.Linear(50, 1)
         if sigma:
             self.activation = nn.Sigmoid()
         self.sigma = sigma
