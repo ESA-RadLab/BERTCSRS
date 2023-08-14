@@ -3,16 +3,17 @@ import os
 import sys
 import nltk
 import numpy as np
+import pandas as pd
 import torch
 import reader
 import matplotlib as mpl
 
 from transformers import AutoTokenizer
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
+from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, \
+    BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
 from sklearn.metrics import confusion_matrix
 from classifier_old import BertClassifierOld
-from classifier import BertClassifier
-
+from classifier import BertClassifier5025
 
 nltk.download('stopwords')
 
@@ -40,7 +41,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     if old_model:
         model = BertClassifierOld(hidden=hidden_layer, model_type=current_model)
     else:
-        model = BertClassifier(hidden=hidden_layer, model_type=current_model)
+        model = BertClassifier5025(hidden=hidden_layer, model_type=current_model)
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -50,7 +51,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     model.eval()
 
     tokenizer = AutoTokenizer.from_pretrained(current_model)
-    test_dataloader = reader.load(data_path, tokenizer, batch_size, old_model)
+    test_dataloader = reader.load(data_path, tokenizer, batch_size, old_model, shuffle=False)
 
     torch.cuda.empty_cache()
 
@@ -86,36 +87,40 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         fB_1 = fB_1.cuda()
         # cohen = cohen.cuda()
 
-    for train_input, train_label in test_dataloader:
-        # train_label = train_label.float().unsqueeze(-1).to(device)
-        if not old_model:
-            train_label = train_label.unsqueeze(-1)
-        train_label = train_label.float().to(device)
+    full_output = []
 
-        mask = train_input['attention_mask'].to(device)
-        input_id = train_input['input_ids'].squeeze(1).to(device)
+    for test_input, test_label in test_dataloader:
+        # test_label = test_label.float().unsqueeze(-1).to(device)
+        if not old_model:
+            test_label = test_label.unsqueeze(-1)
+        test_label = test_label.float().to(device)
+
+        mask = test_input['attention_mask'].to(device)
+        input_id = test_input['input_ids'].squeeze(1).to(device)
 
         output, attentions = model(input_id, mask)
         # full_output.append(output[:].detach().cpu().numpy())
 
-        # acc = (output.argmax(dim=1) == train_label).sum().item()
+        # acc = (output.argmax(dim=1) == test_label).sum().item()
         # total_acc_train += acc
 
-        batch_acc = acc(output, train_label)
-        acc_3(output, train_label)
-        acc_1(output, train_label)
-        batch_precision = precision(output, train_label)
-        precision_3(output, train_label)
-        precision_1(output, train_label)
-        batch_recall = recall(output, train_label)
-        recall_1(output, train_label)
-        recall_3(output, train_label)
-        auroc(output, train_label)
-        batch_fB = fB(output, train_label)
-        fB_3(output, train_label)
-        fB_1(output, train_label)
+        full_output.extend(output[:, 0].detach().cpu().numpy())
 
-        # cohen(output, train_label.int())
+        batch_acc = acc(output, test_label)
+        acc_3(output, test_label)
+        acc_1(output, test_label)
+        batch_precision = precision(output, test_label)
+        precision_3(output, test_label)
+        precision_1(output, test_label)
+        batch_recall = recall(output, test_label)
+        recall_1(output, test_label)
+        recall_3(output, test_label)
+        auroc(output, test_label)
+        batch_fB = fB(output, test_label)
+        fB_3(output, test_label)
+        fB_1(output, test_label)
+
+        # cohen(output, test_label.int())
 
         torch.cuda.empty_cache()
         sys.stdout.flush()
@@ -157,8 +162,13 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
     # fig_, ax_ = cohen.plot()
 
-    print(f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall2:{test_recall1:.4f} precision2:{test_precision1:.4f} fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} " 
-          f"auroc:{test_auroc:.4f}")
+    output_data = pd.read_csv(data_path)
+    output_data['prediction'] = full_output
+    output_data.to_csv(os.path.join("output", f"{bert_name}.csv"))
+
+    print(
+        f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall2:{test_recall1:.4f} precision2:{test_precision1:.4f} fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} "
+        f"auroc:{test_auroc:.4f}")
 
 
 # def wss(R, y_true, y_pred):

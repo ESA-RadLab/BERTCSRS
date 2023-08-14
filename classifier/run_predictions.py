@@ -6,7 +6,7 @@ import itertools
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from classifier import BertClassifier
+from classifier import BertClassifier50
 
 nltk.download('stopwords')
 
@@ -54,7 +54,7 @@ class Dataset(torch.utils.data.Dataset):
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
-model = BertClassifier(hidden=768, model_type=current_model)
+model = BertClassifier50(hidden=768, model_type=current_model)
 
 state_dict = torch.load("/content/gdrive/MyDrive/ESA/Models/biobert0.pt")
 model.load_state_dict(state_dict)

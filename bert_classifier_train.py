@@ -13,7 +13,7 @@ from math import floor
 from torch import nn
 from torch.optim import AdamW, lr_scheduler
 from transformers import AutoTokenizer
-from classifier import BertClassifier
+from classifier import BertClassifier50
 
 
 model_options = {
@@ -55,7 +55,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     print("Get model")
     # torch.manual_seed(5223)
-    model = BertClassifier(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
+    model = BertClassifier50(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
 
     print("Retrieving data")
     tokenizer = AutoTokenizer.from_pretrained(current_model)
@@ -65,7 +65,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
-    pos_weight = torch.tensor([4])
+    pos_weight = torch.tensor([5])
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
@@ -260,6 +260,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         if epoch_num == step_size:
             for g in optimizer.param_groups:
                 g['lr'] = learning_rate * gamma
+
+        learning_rate = optimizer.param_groups[0]["lr"]
 
         val_acc = acc.compute()
         acc.reset()

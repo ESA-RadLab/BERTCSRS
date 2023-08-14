@@ -9,7 +9,7 @@ from transformers import AutoTokenizer
 from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore
 from sklearn.metrics import confusion_matrix
 from classifier_old import BertClassifierOld
-from classifier import BertClassifier
+from classifier import BertClassifier50
 
 
 nltk.download('stopwords')
@@ -38,7 +38,7 @@ def test(bert_name, model_path, data_path, batch_size, threshold, old_model=Fals
     if old_model:
         model = BertClassifierOld(hidden=hidden_layer, model_type=current_model)
     else:
-        model = BertClassifier(hidden=hidden_layer, model_type=current_model)
+        model = BertClassifier50(hidden=hidden_layer, model_type=current_model)
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)

@@ -52,8 +52,8 @@ class Reader(Dataset):
         return batch_texts, batch_y
 
 
-def load(path, tokenizer, batch_size, old_model=False):
+def load(path, tokenizer, batch_size, old_model=False, shuffle=True):
     data = pd.read_csv(path)
     dataset = Reader(data, tokenizer, old_model)
-    dataloader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+    dataloader = DataLoader(dataset, batch_size, shuffle=shuffle, num_workers=0)
     return dataloader
