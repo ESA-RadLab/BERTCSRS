@@ -30,7 +30,7 @@ model_options = {
 }
 
 
-def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout, gamma, step_size):
+def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout, pos_weight, gamma, step_size):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -65,7 +65,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
-    pos_weight = torch.tensor([5])
+    pos_weight = torch.tensor([pos_weight])
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
 
@@ -84,7 +84,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
 
     # num_training_steps = epochs * len(train_dataloader)
-    # lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
+    lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -256,10 +256,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 sys.stdout.flush()
                 gc.collect()
 
-        # lr_schedule.step()
-        if epoch_num == step_size:
-            for g in optimizer.param_groups:
-                g['lr'] = learning_rate * gamma
+        lr_schedule.step()
+        # if epoch_num == step_size:
+        #     for g in optimizer.param_groups:
+        #         g['lr'] = learning_rate * gamma
 
         learning_rate = optimizer.param_groups[0]["lr"]
 
