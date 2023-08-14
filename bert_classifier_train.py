@@ -13,7 +13,7 @@ from math import floor
 from torch import nn
 from torch.optim import AdamW, lr_scheduler
 from transformers import AutoTokenizer
-from classifier import BertClassifier50
+from classifier import BertClassifier25 as Bert
 
 
 model_options = {
@@ -55,7 +55,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     print("Get model")
     # torch.manual_seed(5223)
-    model = BertClassifier50(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
+    model = Bert(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
 
     print("Retrieving data")
     tokenizer = AutoTokenizer.from_pretrained(current_model)
