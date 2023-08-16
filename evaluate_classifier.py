@@ -13,7 +13,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecal
     BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
 from sklearn.metrics import confusion_matrix
 from classifier_old import BertClassifierOld
-from classifier import BertClassifier5025
+from classifier import BertClassifier5025 as Bert
 
 nltk.download('stopwords')
 
@@ -41,7 +41,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     if old_model:
         model = BertClassifierOld(hidden=hidden_layer, model_type=current_model)
     else:
-        model = BertClassifier5025(hidden=hidden_layer, model_type=current_model)
+        model = Bert(hidden=hidden_layer, model_type=current_model)
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -161,6 +161,9 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     # cohen.reset()
 
     # fig_, ax_ = cohen.plot()
+
+    if not os.path.exists('output'):
+        os.makedirs('output')
 
     output_data = pd.read_csv(data_path)
     output_data['prediction'] = full_output
