@@ -57,7 +57,7 @@ class BertClassifier50(nn.Module):
           - model_type: the name of the BERT model from HuggingFace
           - droupout: rate of the dropout to be applied
     """
-        super(BertClassifier25, self).__init__()
+        super(BertClassifier50, self).__init__()
         self.bert = BertModel.from_pretrained(model_type, output_attentions=True)
         # self.bert.train()
         self.dropout = nn.Dropout(dropout)

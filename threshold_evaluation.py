@@ -9,7 +9,7 @@ from transformers import AutoTokenizer
 from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore
 from sklearn.metrics import confusion_matrix
 from classifier_old import BertClassifierOld
-from classifier import BertClassifier50
+from classifier import BertClassifier25 as bert
 
 
 nltk.download('stopwords')
@@ -38,7 +38,7 @@ def test(bert_name, model_path, data_path, batch_size, threshold, old_model=Fals
     if old_model:
         model = BertClassifierOld(hidden=hidden_layer, model_type=current_model)
     else:
-        model = BertClassifier50(hidden=hidden_layer, model_type=current_model)
+        model = bert(hidden=hidden_layer, model_type=current_model)
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -116,21 +116,6 @@ def test(bert_name, model_path, data_path, batch_size, threshold, old_model=Fals
     print(f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} "
           f"auroc:{test_auroc:.4f}")
 
-
-# def wss(R, y_true, y_pred):
-#     cfmat = confusion_matrix(y_true, y_pred)
-#     tn_, fp_, fn_, tp_ = cfmat.ravel()  # instead of doing a call for each
-#     N = np.sum(cfmat)
-#     if N <= 0:
-#         print("N = {}!!!".format(N))
-#     return (tn_ + fn_) / N - (1 - R)
-#
-#
-# def wss95(y_true, y_pred):
-#     return wss(0.95, y_true, y_pred)
-
-
-# wss95(true_vals, all_logits)
 if __name__ == "__main__":
     data_path = "data/sex_diff_test.csv"
     # model_path = "models/pubmed_abstract/25.07_14.06/pubmed_abstract_epoch_6.pt"

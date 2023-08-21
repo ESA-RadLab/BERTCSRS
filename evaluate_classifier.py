@@ -5,15 +5,17 @@ import nltk
 import numpy as np
 import pandas as pd
 import torch
+from matplotlib import pyplot as plt
+
 import reader
 import matplotlib as mpl
 
 from transformers import AutoTokenizer
 from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, \
     BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, PrecisionRecallDisplay
 from classifier_old import BertClassifierOld
-from classifier import BertClassifier5025 as Bert
+from classifier import BertClassifier25 as Bert
 
 nltk.download('stopwords')
 
@@ -31,7 +33,7 @@ model_options = {
 }
 
 
-def test(bert_name, model_path, data_path, batch_size, old_model=False):
+def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     current_model = model_options[bert_name][0]
     hidden_layer = model_options[bert_name][1]
 
@@ -42,6 +44,8 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         model = BertClassifierOld(hidden=hidden_layer, model_type=current_model)
     else:
         model = Bert(hidden=hidden_layer, model_type=current_model)
+
+    model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -68,8 +72,8 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     fB = BinaryFBetaScore(beta=2., threshold=0.5)
     fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
+    PRcurve = BinaryPrecisionRecallCurve(thresholds=10)
 
-    # cohen = BinaryPrecisionRecallCurve(thresholds=10)
 
     if use_cuda:
         acc = acc.cuda()
@@ -85,7 +89,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         fB = fB.cuda()
         fB_3 = fB_3.cuda()
         fB_1 = fB_1.cuda()
-        # cohen = cohen.cuda()
+        PRcurve = PRcurve.cuda()
 
     full_output = []
 
@@ -120,7 +124,7 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
         fB_3(output, test_label)
         fB_1(output, test_label)
 
-        # cohen(output, test_label.int())
+        curve = PRcurve(output, test_label.int())
 
         torch.cuda.empty_cache()
         sys.stdout.flush()
@@ -157,22 +161,24 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
     test_fB1 = fB_1.compute()
     fB_1.reset()
 
-    # test_cohen = cohen.compute()
-    # cohen.reset()
+    PRcurve.compute()
 
-    # fig_, ax_ = cohen.plot()
+    fig_, ax_ = PRcurve.plot()
 
     if not os.path.exists('output'):
         os.makedirs('output')
 
     output_data = pd.read_csv(data_path)
     output_data['prediction'] = full_output
-    output_data.to_csv(os.path.join("output", f"{bert_name}.csv"))
+    output_data.to_csv(os.path.join("output", f"{bert_name}_{version}_epoch{epoch}.csv"))
 
     print(
-        f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall2:{test_recall1:.4f} precision2:{test_precision1:.4f} fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} "
+        f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} "
+        f"precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall2:{test_recall1:.4f} precision2:{test_precision1:.4f} "
+        f"fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} "
         f"auroc:{test_auroc:.4f}")
 
+    plt.show()
 
 # def wss(R, y_true, y_pred):
 #     cfmat = confusion_matrix(y_true, y_pred)
@@ -189,14 +195,14 @@ def test(bert_name, model_path, data_path, batch_size, old_model=False):
 
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
-    modelname = "mediumbert"
-    version = "04.08_14.30"
-    epoch = 5
+    modelname = "biobert"
+    version = "08.08_08.41"
+    epoch = 7
 
     data_path = os.path.join("data", "cns_test_new1.csv")
-    model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
+    # model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
-    batch_size = 12
+    batch_size = 10
 
-    test(modelname, model_path, data_path, batch_size)
+    test(modelname, version, epoch, data_path, batch_size)
     # test(bert_name, model_path, data_path, batch_size, True)
