@@ -82,7 +82,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     recall = BinaryRecall(threshold=0.5)
     recall_1 = BinaryRecall(threshold=0.2)
     recall_3 = BinaryRecall(threshold=0.3)
-    auroc = BinaryAUROC(thresholds=10)
+    # auroc = BinaryAUROC(thresholds=10)
     fB = BinaryFBetaScore(beta=2., threshold=0.5)
     fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
@@ -105,7 +105,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         recall = recall.cuda()
         recall_1 = recall_1.cuda()
         recall_3 = recall_3.cuda()
-        auroc = auroc.cuda()
+        # auroc = auroc.cuda()
         fB = fB.cuda()
         fB_3 = fB_3.cuda()
         fB_1 = fB_1.cuda()
@@ -249,7 +249,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 recall(output, val_label)
                 recall_1(output, val_label)
                 recall_3(output, val_label)
-                auroc(output, val_label)
+                # auroc(output, val_label)
                 fB(output, val_label)
                 fB_3(output, val_label)
                 fB_1(output, val_label)
@@ -293,9 +293,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         recall_1.reset()
         val_recall3 = recall_3.compute()
         recall_3.reset()
-
-        val_auroc = auroc.compute()
-        auroc.reset()
+        #
+        # val_auroc = auroc.compute()
+        # auroc.reset()
 
         val_fB = fB.compute()
         fB.reset()
@@ -308,7 +308,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         val_log = f"EPOCH {epoch_num} VALID avloss: {(total_loss_val / len(val_dataloader)):.6f} \n" \
                   f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
                   f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
-                  f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n auroc: {val_auroc}"
+                  f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n"
 
         epoch_log.write(train_log + "\n")
         epoch_log.write(val_log)
