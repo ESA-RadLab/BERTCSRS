@@ -170,12 +170,12 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     #
     # fig_, ax_ = PRcurve.plot()
 
-    if not os.path.exists('../output'):
-        os.makedirs('../output')
+    if not os.path.exists('output'):
+        os.makedirs('output')
 
     output_data = pd.read_csv(data_path)
     output_data['prediction'] = full_output
-    output_data.to_csv(os.path.join("../output", f"{bert_name}_{version}_epoch{epoch}.csv"))
+    output_data.to_csv(os.path.join("output", f"{bert_name}_{version}_epoch{epoch}.csv"))
 
     print(
         f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} "

@@ -328,6 +328,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         torch.save(model.state_dict(), model_path)
         model.load_state_dict(torch.load(model_path))
 
+    del model, tokenizer
+    torch.cuda.empty_cache()
+
     summary_log.close()
     return valid_result, version
 
@@ -339,5 +342,5 @@ if __name__ == "__main__":
     LR = 2e-5
     EPOCHS = 10
 
-    train('mediumbert', train_path, val_path, LR, EPOCHS, 15, 0.2)
+    train('mediumbert', train_path, val_path, LR, EPOCHS, 15, 0.2, 10, 1, 1)
 

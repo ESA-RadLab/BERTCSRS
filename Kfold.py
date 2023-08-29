@@ -53,7 +53,7 @@ for fold in tqdm(folds):
 
     evaluate_classifier.test(bert, version, best_epoch, data_path, batch_size)
 
-    output_path = "..\\output"
+    output_path = "output"
     precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)
 
     best_threshold = 0.5
