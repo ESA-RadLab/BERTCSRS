@@ -45,7 +45,7 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     else:
         model = Bert(hidden=hidden_layer, model_type=current_model)
 
-    model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
+    model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -93,7 +93,9 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
 
     full_output = []
 
+    i = 0
     for test_input, test_label in test_dataloader:
+        i += 1
         # test_label = test_label.float().unsqueeze(-1).to(device)
         if not old_model:
             test_label = test_label.unsqueeze(-1)
@@ -124,11 +126,14 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
         fB_3(output, test_label)
         fB_1(output, test_label)
 
-        curve = PRcurve(output, test_label.int())
+        # curve = PRcurve(output, test_label.int())
 
         torch.cuda.empty_cache()
         sys.stdout.flush()
         gc.collect()
+
+        # if i >= 5:  # debug
+        #     break
 
     test_acc = acc.compute()
     acc.reset()
@@ -161,16 +166,16 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     test_fB1 = fB_1.compute()
     fB_1.reset()
 
-    PRcurve.compute()
+    # PRcurve.compute()
+    #
+    # fig_, ax_ = PRcurve.plot()
 
-    fig_, ax_ = PRcurve.plot()
-
-    if not os.path.exists('output'):
-        os.makedirs('output')
+    if not os.path.exists('../output'):
+        os.makedirs('../output')
 
     output_data = pd.read_csv(data_path)
     output_data['prediction'] = full_output
-    output_data.to_csv(os.path.join("output", f"{bert_name}_{version}_epoch{epoch}.csv"))
+    output_data.to_csv(os.path.join("../output", f"{bert_name}_{version}_epoch{epoch}.csv"))
 
     print(
         f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} "
@@ -178,7 +183,7 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
         f"fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} "
         f"auroc:{test_auroc:.4f}")
 
-    plt.show()
+    # plt.show()
 
 # def wss(R, y_true, y_pred):
 #     cfmat = confusion_matrix(y_true, y_pred)
@@ -195,11 +200,11 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
 
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
-    modelname = "biobert"
-    version = "08.08_08.41"
+    modelname = "pubmed_abstract"
+    version = "23.08_14.27"
     epoch = 7
 
-    data_path = os.path.join("data", "cns_test_new1.csv")
+    data_path = os.path.join("../data", "cns_test_raw.csv")
     # model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
     batch_size = 10

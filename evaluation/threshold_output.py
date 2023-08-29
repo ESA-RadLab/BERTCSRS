@@ -12,7 +12,7 @@ precision = BinaryPrecision(threshold=threshold)
 recall = BinaryRecall(threshold=threshold)
 fB = BinaryFBetaScore(beta=2., threshold=threshold)
 
-df_output = pd.read_csv('output/biobert_04.08_09.29_epoch7.csv')
+df_output = pd.read_csv('../output/biobert_04.08_09.29_epoch7.csv')
 
 output = tensor(df_output['prediction'])
 

@@ -117,10 +117,10 @@ def test(bert_name, model_path, data_path, batch_size, threshold, old_model=Fals
           f"auroc:{test_auroc:.4f}")
 
 if __name__ == "__main__":
-    data_path = "data/sex_diff_test.csv"
+    data_path = "../data/sex_diff_test.csv"
     # model_path = "models/pubmed_abstract/25.07_14.06/pubmed_abstract_epoch_6.pt"
     # model_path = "models/pubmed_abstract/24.07_13.27/pubmed_abstract_epoch_9_13.37.33.pt"
-    model_path = "models/Original/sex_diff.pt"
+    model_path = "../models/Original/sex_diff.pt"
     bert_name = "pubmed_abstract"  # sex_diff: pubmed_abstract cns: biobert
     batch_size = 10
 

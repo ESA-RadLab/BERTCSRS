@@ -40,7 +40,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
           - epochs: the number of epochs for training
     """
     start_time = datetime.now()
-    save_path = os.path.join("models", model_name, start_time.strftime("%d.%m_%H.%M"))
+    version = start_time.strftime("%d.%m_%H.%M")
+    save_path = os.path.join("models", model_name, version)
     log_path = os.path.join(save_path, "logs")
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -49,6 +50,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
+
+    # valid_log = open(os.path.join(save_path, "valid_log.txt"), 'w')
+    valid_result = []
 
     current_model = model_options[model_name][0]
     hidden_layer = model_options[model_name][1]
@@ -183,9 +187,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                   f"time remaining: {remaining_hours:.0f}:{remaining_minutes:.0f}:{remaining_seconds:.0f}"
 
             epoch_log.write(log + "\n")
-            print(log)
+            if i % 10 == 0:
+                print(log)
 
-            # if i >= 5:
+            # if i >= 5:  # debug
             #     break
 
         train_acc = acc.compute()
@@ -222,8 +227,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         total_loss_val = 0
         print("Validating")
         model.eval()
+        i = 0
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
+                i += 1
                 val_label = val_label.float().unsqueeze(-1).to(device)
                 mask = val_input['attention_mask'].to(device)
                 input_id = val_input['input_ids'].squeeze(1).to(device)
@@ -255,6 +262,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
                 sys.stdout.flush()
                 gc.collect()
+
+                # if i >= 5:  # debug
+                #     break
 
         lr_schedule.step()
         # if epoch_num == step_size:
@@ -307,15 +317,19 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         summary_log.write(f"{train_log}\t")
         summary_log.write(f"{val_log}\n")
 
+        # valid_log.write(f"{epoch_num} {total_loss_val / len(val_dataloader)}")
+        valid_result.append(total_loss_val / len(val_dataloader))
+
         print(train_log)
         print(val_log)
 
-        model_path = os.path.join(save_path, f"{model_name}_epoch_{epoch_num}.pt")
+        model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
 
         torch.save(model.state_dict(), model_path)
         model.load_state_dict(torch.load(model_path))
 
     summary_log.close()
+    return valid_result, version
 
 
 if __name__ == "__main__":

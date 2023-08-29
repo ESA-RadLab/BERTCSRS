@@ -2,7 +2,7 @@ import re
 
 import pandas as pd
 
-data_df = pd.read_csv("data/cns_val_new1.csv")
+data_df = pd.read_csv("cns_val_new1.csv")
 
 remove_words = ["purpose", "purposes", "objective", "result", "results", "method", 'objectives', 'methods', 'design',
                 'study population', 'measurements', 'conclusions', 'materials', 'methods', 'limitations', 'setting',
