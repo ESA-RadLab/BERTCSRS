@@ -2,6 +2,8 @@ import gc
 import os
 import sys
 import time
+
+import pandas as pd
 import torch
 import torchmetrics
 from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryAUROC, BinaryFBetaScore
@@ -51,7 +53,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
 
-    # valid_log = open(os.path.join(save_path, "valid_log.txt"), 'w')
     valid_result = []
 
     current_model = model_options[model_name][0]
@@ -228,6 +229,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print("Validating")
         model.eval()
         i = 0
+        val_output = []
+
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
                 i += 1
@@ -259,6 +262,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 # batch_acc = acc(output, val_label)
                 # batch_precision = precision(output, val_label)
                 # batch_recall = recall(output, val_label)
+
+                val_output.extend(output[:, 0].detach().cpu().numpy())
 
                 sys.stdout.flush()
                 gc.collect()
@@ -317,8 +322,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         summary_log.write(f"{train_log}\t")
         summary_log.write(f"{val_log}\n")
 
-        # valid_log.write(f"{epoch_num} {total_loss_val / len(val_dataloader)}")
         valid_result.append(total_loss_val / len(val_dataloader))
+
+        output_val_data = pd.read_csv(val_path)
+        output_val_data['prediction'] = val_output
+        output_val_data.to_csv(os.path.join("output", f"{model_name}_{version}_epoch{epoch_num}_VAL.csv"))
 
         print(train_log)
         print(val_log)

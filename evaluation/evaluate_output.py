@@ -7,7 +7,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecal
 from torch import tensor
 
 
-def evaluate(bert, version, epoch, data_path):
+def evaluate(bert, version, epoch, data_path, val_test=""):
     acc = BinaryAccuracy(threshold=0.5)
     acc_3 = BinaryAccuracy(threshold=0.3)
     acc_1 = BinaryAccuracy(threshold=0.2)
@@ -23,7 +23,10 @@ def evaluate(bert, version, epoch, data_path):
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
     PRcurve = BinaryPrecisionRecallCurve()
 
-    output_data_path = os.path.join(data_path, f"{bert}_{version}_epoch{epoch}.csv")
+    if len(val_test) > 0:
+        val_test = "_" + val_test
+
+    output_data_path = os.path.join(data_path, f"{bert}_{version}_epoch{epoch}{val_test}.csv")
 
     df_output = pd.read_csv(output_data_path)
 
