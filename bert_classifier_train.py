@@ -49,6 +49,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         os.makedirs(save_path)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
+    if not os.path.exists('output'):
+        os.makedirs('output')
 
     summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")

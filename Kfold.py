@@ -4,7 +4,7 @@ from tqdm import tqdm
 import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
 
-bert = 'pubmed_abstract'
+bert = 'biobert'
 
 fold_path = "Kfolds"
 folds = os.listdir(fold_path)
@@ -24,8 +24,8 @@ for fold in tqdm(folds):
     val_path = os.path.join(fold_path, fold, "cns_val_raw.csv")
 
     LR = 2e-5
-    EPOCHS = 8  # debug
-    batch_size = 2  # debug
+    EPOCHS = 8
+    batch_size = 15
     dropout = 0.2
     step_size = 5
     gamma = 1
@@ -43,7 +43,7 @@ for fold in tqdm(folds):
 
     data_path = os.path.join(fold_path, fold, "cns_test_raw.csv")
 
-    batch_size = 2  # debug
+    batch_size = 13
 
     evaluate_classifier.test(bert, version, best_epoch, data_path, batch_size)
 
@@ -51,7 +51,7 @@ for fold in tqdm(folds):
     val_output = pd.read_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}_VAL.csv"))
 
     full_output = test_output.append(val_output)
-    full_output.to_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}.csv"))
+    full_output.to_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}.csv"), index=False, line_terminator="\r\n")
 
     output_path = "output"
     precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)
@@ -93,7 +93,7 @@ Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Recall": 
 
 
 if os.path.exists("Kfolds/Kfold_results.xlsx"):
-    with pd.ExcelWriter("path_to_file.xlsx", mode='a', if_sheet_exists='overlay') as writer:
+    with pd.ExcelWriter("path_to_file.xlsx", mode='a', if_sheet_exists='new') as writer:
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
     Kfold_results.to_excel("Kfolds/Kfold_results.xlsx", sheet_name=bert)
