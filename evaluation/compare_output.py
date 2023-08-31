@@ -17,13 +17,13 @@ def compare(threshold, bert, version, epoch, data_path):
     for i, prediction in enumerate(predictions):
         decision = decisions[i]
         if prediction >= threshold and decision == "Included":
-            true_pos.append(df_output.iloc[i, [2, 3, 4]])
+            true_pos.append(df_output.loc[i, ["titleabstract", "decision", "prediction"]])
         elif prediction < threshold and decision == "Excluded":
-            true_neg.append(df_output.iloc[i, [2, 3, 4]])
+            true_neg.append(df_output.loc[i, ["titleabstract", "decision", "prediction"]])
         elif prediction >= threshold and decision == "Excluded":
-            false_pos.append(df_output.iloc[i, [2, 3, 4]])
+            false_pos.append(df_output.loc[i, ["titleabstract", "decision", "prediction"]])
         else:
-            false_neg.append(df_output.iloc[i, [2, 3, 4]])
+            false_neg.append(df_output.loc[i, ["titleabstract", "decision", "prediction"]])
 
     print(f"tp: {len(true_pos)} tn: {len(true_neg)} fp: {len(false_pos)} fn: {len(false_neg)}")
 
@@ -41,9 +41,9 @@ def compare(threshold, bert, version, epoch, data_path):
 
 if __name__ == "__main__":
     threshold = 0.5
-    data_path = "..\\output\\Kfold"
+    data_path = "..\\Kfolds\\output\\fold_3"
     bert_name = "pubmed_abstract"
-    epoch = 4
-    version = "29.08_12.14"
+    epoch = 6
+    version = "29.08_13.04"
 
     compare(threshold, bert_name, version, epoch, data_path)

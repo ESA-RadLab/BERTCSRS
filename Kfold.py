@@ -6,9 +6,13 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 bert = 'biobert'
 
-fold_path = "Kfolds"
+fold_path = "Kfolds\data"
 folds = os.listdir(fold_path)
 folds.sort()
+
+for k, fold in enumerate(folds):
+    if "fold" not in fold:
+        folds.pop(k)
 
 best_epoch_list = []
 best_recall_list = []
@@ -20,8 +24,6 @@ fp_list = []
 fn_list = []
 
 for fold in tqdm(folds):
-    if ".xlsx" in fold:
-        continue
     print("\n" + fold)
     train_path = os.path.join(fold_path, fold, "cns_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "cns_val_raw.csv")
@@ -91,12 +93,12 @@ for fold in tqdm(folds):
 
 # folds = folds[0]  # debug
 
-Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Recall": best_recall_list, "Precision": best_precision_list,
-                              "Threshold": best_threshold_list, "False Neg": fn_list, "False Pos": fp_list, "Val loss": valid_result_list})
+Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": best_epoch_list, "Recall": best_recall_list, "Precision": best_precision_list,
+                              "Threshold": best_threshold_list, "False Neg(0.5)": fn_list, "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
 
 
 if os.path.exists("Kfolds/Kfold_results.xlsx"):
-    with pd.ExcelWriter("path_to_file.xlsx", mode='a', if_sheet_exists='new') as writer:
+    with pd.ExcelWriter("Kfolds/Kfold_results.xlsx", mode='a', if_sheet_exists='new') as writer:
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
     Kfold_results.to_excel("Kfolds/Kfold_results.xlsx", sheet_name=bert)
