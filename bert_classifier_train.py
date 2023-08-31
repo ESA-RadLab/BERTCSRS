@@ -49,8 +49,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         os.makedirs(save_path)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
-    if not os.path.exists('output'):
-        os.makedirs('output')
+    # if not os.path.exists('output'):
+    #     os.makedirs('output')
 
     summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
@@ -231,7 +231,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print("Validating")
         model.eval()
         i = 0
-        val_output = []
+        # val_output = []
 
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
@@ -265,7 +265,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 # batch_precision = precision(output, val_label)
                 # batch_recall = recall(output, val_label)
 
-                val_output.extend(output[:, 0].detach().cpu().numpy())
+                # val_output.extend(output[:, 0].detach().cpu().numpy())
 
                 sys.stdout.flush()
                 gc.collect()
@@ -326,9 +326,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         valid_result.append(total_loss_val / len(val_dataloader))
 
-        output_val_data = pd.read_csv(val_path)
-        output_val_data['prediction'] = val_output
-        output_val_data.to_csv(os.path.join("output", f"{model_name}_{version}_epoch{epoch_num}_VAL.csv"))
+        # output_val_data = pd.read_csv(val_path)
+        # output_val_data['prediction'] = val_output
+        # output_val_data.to_csv(os.path.join("output", f"{model_name}_{version}_epoch{epoch_num}_VAL.csv"))
 
         print(train_log)
         print(val_log)
