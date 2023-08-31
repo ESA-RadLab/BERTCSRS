@@ -50,8 +50,8 @@ for fold in tqdm(folds):
     test_output = pd.read_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}_TEST.csv"))
     val_output = pd.read_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}_VAL.csv"))
 
-    full_output = test_output.append(val_output)
-    full_output.to_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}.csv"), index=False, line_terminator="\r\n")
+    full_output = test_output.concat(val_output)
+    full_output.to_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}.csv"), index=False, lineterminator="\r\n")
 
     output_path = "output"
     precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)

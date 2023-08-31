@@ -25,7 +25,7 @@ def compare(threshold, bert, version, epoch, data_path):
         else:
             false_neg.append(df_output.iloc[i, [2, 3, 4]])
 
-    print(len(true_pos), len(true_neg), len(false_pos), len(false_neg))
+    print(f"tp: {len(true_pos)} tn: {len(true_neg)} fp: {len(false_pos)} fn: {len(false_neg)}")
 
     df_fn = pd.DataFrame(false_neg)
     if len(false_neg) > 0:
@@ -41,9 +41,9 @@ def compare(threshold, bert, version, epoch, data_path):
 
 if __name__ == "__main__":
     threshold = 0.5
-    data_path = "output"
+    data_path = "..\\output\\Kfold"
     bert_name = "pubmed_abstract"
-    epoch = 12
-    version = "23.08_14.27"
+    epoch = 4
+    version = "29.08_12.14"
 
     compare(threshold, bert_name, version, epoch, data_path)

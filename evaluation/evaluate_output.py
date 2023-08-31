@@ -84,3 +84,31 @@ def evaluate(bert, version, epoch, data_path, val_test=""):
 
     # plt.show()
     return precision_list, recall_list, threshold_list
+
+
+if __name__ == "__main__":
+    bert = "pubmed_abstract"
+    version = "29.08_12.14"
+    epoch = 4
+    data_path = "..\\output\\Kfold"
+
+    precision_list, recall_list, threshold_list = evaluate(bert, version, epoch, data_path, val_test="")
+
+    best_threshold = 0.5
+    best_precision = 0
+    best_recall = 0
+    min_precision = 0.4
+
+    while best_precision == 0 and min_precision > 0.2:
+        for i, precision in enumerate(precision_list):
+            precision = float(precision)
+            recall = float(recall_list[i])
+            threshold = float(threshold_list[i])
+            if precision > min_precision and precision >= best_precision:
+                if recall >= best_recall:
+                    best_recall = recall
+                    best_precision = precision
+                    best_threshold = threshold
+        min_precision -= 0.05
+
+    print(f"best_recall: {best_recall} best_precision: {best_precision} best_threshold: {best_threshold}")

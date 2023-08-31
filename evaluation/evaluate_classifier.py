@@ -176,7 +176,7 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     output_data = pd.read_csv(data_path)
     output_data['prediction'] = full_output
     # output_data = output_data.to_frame()
-    output_data.to_csv(os.path.join("output", f"{bert_name}_{version}_epoch{epoch}_TEST.csv"), index=False, line_terminator="\r\n")
+    output_data.to_csv(os.path.join("output", f"{bert_name}_{version}_epoch{epoch}_TEST.csv"), index=False, lineterminator="\r\n")
 
     print(
         f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} "
