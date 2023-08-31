@@ -20,6 +20,8 @@ fp_list = []
 fn_list = []
 
 for fold in tqdm(folds):
+    if ".xlsx" in fold:
+        continue
     print("\n" + fold)
     train_path = os.path.join(fold_path, fold, "cns_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "cns_val_raw.csv")
