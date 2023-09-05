@@ -5,9 +5,8 @@ fold_path = "Kfolds\output"
 folds = os.listdir(fold_path)
 folds.sort()
 
-for k, fold in enumerate(folds):
-    if "fold" not in fold:
-        folds.pop(k)
+filtered_folds = [fold for fold in folds if "fold" in fold]
+folds = filtered_folds
 
 FN_titleabstracts = []
 FN_count = []
@@ -64,7 +63,11 @@ FN_results = FN_results.sort_values("Count", ascending=False)
 FP_results = pd.DataFrame({"Title-abstract": FP_titleabstracts, "Count": FP_count, "Average prediction": FP_prediction})
 FP_results = FP_results.sort_values("Count", ascending=False)
 
-FN_results.to_excel(f"{fold_path}/Titleabstracts.xlsx", sheet_name="False Negatives")
+if os.path.exists("Kfolds/Kfold_results.xlsx"):
+    with pd.ExcelWriter(f"{fold_path}/Titleabstracts.xlsx", mode='a', if_sheet_exists='clear') as writer:
+        FN_results.to_excel(writer, sheet_name="False Negatives")
+else:
+    FN_results.to_excel(f"{fold_path}/Titleabstracts.xlsx", sheet_name="False Negatives")
 
 with pd.ExcelWriter(f"{fold_path}/Titleabstracts.xlsx", mode='a', if_sheet_exists='new') as writer:
     FP_results.to_excel(writer, sheet_name="False Positives")

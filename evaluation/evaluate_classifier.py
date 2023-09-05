@@ -184,6 +184,8 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
         f"fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} "
         f"auroc:{test_auroc:.4f}")
 
+    return test_recall, test_precision, test_acc, test_fB
+
     # plt.show()
 
 # def wss(R, y_true, y_pred):

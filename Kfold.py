@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from tqdm import tqdm
 import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
 
@@ -10,9 +9,8 @@ fold_path = "Kfolds\data"
 folds = os.listdir(fold_path)
 folds.sort()
 
-for k, fold in enumerate(folds):
-    if "fold" not in fold:
-        folds.pop(k)
+filtered_folds = [fold for fold in folds if "fold" in fold]
+folds = filtered_folds
 
 best_epoch_list = []
 best_recall_list = []
@@ -22,8 +20,12 @@ valid_result_list = []
 version_list = []
 fp_list = []
 fn_list = []
+recall5_list = []
+precision5_list = []
+accuracy5_list = []
+Fbeta5_list = []
 
-for fold in tqdm(folds):
+for fold in folds:
     print("\n" + fold)
     train_path = os.path.join(fold_path, fold, "cns_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "cns_val_raw.csv")
@@ -50,13 +52,7 @@ for fold in tqdm(folds):
 
     batch_size = 13
 
-    evaluate_classifier.test(bert, version, best_epoch, data_path, batch_size)
-
-    # test_output = pd.read_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}_TEST.csv"))
-    # val_output = pd.read_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}_VAL.csv"))
-    #
-    # full_output = test_output.append(val_output)
-    # full_output.to_csv(os.path.join("output", f"{bert}_{version}_epoch{best_epoch}.csv"), index=False, lineterminator="\r\n")
+    recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, batch_size)
 
     output_path = "output"
     precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)
@@ -84,6 +80,11 @@ for fold in tqdm(folds):
     best_recall_list.append(best_recall)
     best_precision_list.append(best_precision)
 
+    recall5_list.append(recall5)
+    precision5_list.append(precision5)
+    accuracy5_list.append(accuracy5)
+    Fbeta5_list.append(Fbeta5)
+
     true_pos, true_neg, false_pos, false_neg = compare_output.compare(0.5, bert, version, best_epoch, output_path)
 
     fp_list.append(false_pos)
@@ -93,8 +94,9 @@ for fold in tqdm(folds):
 
 # folds = folds[0]  # debug
 
-Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": best_epoch_list, "Recall": best_recall_list, "Precision": best_precision_list,
-                              "Threshold": best_threshold_list, "False Neg(0.5)": fn_list, "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
+Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": best_epoch_list, "Recall": recall5_list, "Precision": precision5_list,
+                              "Accuracy": accuracy5_list, "Fbeta": Fbeta5_list, "Best Recall": best_recall_list, "Best Precision": best_precision_list,
+                              "Best Threshold": best_threshold_list, "False Neg(0.5)": fn_list, "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
 
 
 if os.path.exists("Kfolds/Kfold_results.xlsx"):
