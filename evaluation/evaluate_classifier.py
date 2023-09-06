@@ -184,7 +184,7 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
         f"fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} "
         f"auroc:{test_auroc:.4f}")
 
-    return test_recall.squeeze().cpu(), test_precision.squeeze().cpu(), test_acc.squeeze().cpu(), test_fB.squeeze().cpu()
+    return test_recall.cpu().numpy(), test_precision.cpu().numpy(), test_acc.cpu().numpy(), test_fB.cpu().numpy()
 
     # plt.show()
 
