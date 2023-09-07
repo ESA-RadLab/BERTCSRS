@@ -32,7 +32,7 @@ for fold in folds:
 
     LR = 2e-5
     EPOCHS = 8
-    batch_size = 15
+    batch_size = 10
     dropout = 0.2
     step_size = 5
     gamma = 1
