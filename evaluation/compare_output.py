@@ -41,7 +41,7 @@ def compare(threshold, bert, version, epoch, data_path):
 
 if __name__ == "__main__":
     threshold = 0.5
-    data_path = "..\\Kfolds\\output\\fold_3"
+    data_path = "../Kfolds/output/CNS/fold_3"
     bert_name = "pubmed_abstract"
     epoch = 6
     version = "29.08_13.04"

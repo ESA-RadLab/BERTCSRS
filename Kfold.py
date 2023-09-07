@@ -3,9 +3,9 @@ import pandas as pd
 import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
 
-bert = 'biobert'
+bert = 'medbert'
 
-fold_path = "Kfolds\data"
+fold_path = "Kfolds/data/SD"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -27,8 +27,8 @@ Fbeta5_list = []
 
 for fold in folds:
     print("\n" + fold)
-    train_path = os.path.join(fold_path, fold, "cns_balanced_raw.csv")
-    val_path = os.path.join(fold_path, fold, "cns_val_raw.csv")
+    train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
+    val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
     LR = 2e-5
     EPOCHS = 8
@@ -48,7 +48,7 @@ for fold in folds:
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
 
-    data_path = os.path.join(fold_path, fold, "cns_fulltest_raw.csv")
+    data_path = os.path.join(fold_path, fold, "sd_fulltest_raw.csv")
 
     batch_size = 13
 
@@ -68,7 +68,7 @@ for fold in folds:
             recall = float(recall_list[i])
             threshold = float(threshold_list[i])
             if precision > min_precision and precision >= best_precision:
-                if recall >= best_recall:
+                if recall >= best_recall and threshold >= 0.1:
                     best_recall = recall
                     best_precision = precision
                     best_threshold = threshold
@@ -99,8 +99,8 @@ Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": b
                               "Best Threshold": best_threshold_list, "False Neg(0.5)": fn_list, "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
 
 
-if os.path.exists("Kfolds/Kfold_results.xlsx"):
-    with pd.ExcelWriter("Kfolds/Kfold_results.xlsx", mode='a', if_sheet_exists='new') as writer:
+if os.path.exists("Kfolds/Kfold_results_SD.xlsx"):
+    with pd.ExcelWriter("Kfolds/Kfold_results_SD.xlsx", mode='a', if_sheet_exists='new') as writer:
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
-    Kfold_results.to_excel("Kfolds/Kfold_results.xlsx", sheet_name=bert)
+    Kfold_results.to_excel("Kfolds/Kfold_results_SD.xlsx", sheet_name=bert)
