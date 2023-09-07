@@ -1,10 +1,9 @@
 import os
+
 import pandas as pd
-from matplotlib import pyplot as plt
-from sklearn.metrics import PrecisionRecallDisplay
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, \
-    BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
 from torch import tensor
+from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryFBetaScore, \
+    BinaryPrecisionRecallCurve
 
 
 def evaluate(bert, version, epoch, data_path, val_test=""):

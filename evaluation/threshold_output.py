@@ -1,9 +1,6 @@
 import pandas as pd
-from matplotlib import pyplot as plt
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, \
-    BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
 from torch import tensor
-
+from torchmetrics.classification import BinaryAccuracy, BinaryRecall, BinaryPrecision, BinaryFBetaScore
 
 threshold = 0.122
 

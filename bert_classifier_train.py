@@ -2,21 +2,17 @@ import gc
 import os
 import sys
 import time
-
-import pandas as pd
-import torch
-import torchmetrics
-from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryAUROC, BinaryFBetaScore
-
-import reader
-
 from datetime import datetime
 from math import floor
+
+import torch
 from torch import nn
 from torch.optim import AdamW, lr_scheduler
+from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryFBetaScore
 from transformers import AutoTokenizer
-from classifier import BertClassifier25 as Bert
 
+import reader
+from classifier import BertClassifier25 as Bert
 
 model_options = {
     "biobert": ["dmis-lab/biobert-v1.1", 768],

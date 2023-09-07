@@ -1,21 +1,17 @@
 import gc
 import os
 import sys
+
 import nltk
-import numpy as np
 import pandas as pd
 import torch
-from matplotlib import pyplot as plt
+from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryFBetaScore, \
+    BinaryPrecisionRecallCurve
+from transformers import AutoTokenizer
 
 import reader
-import matplotlib as mpl
-
-from transformers import AutoTokenizer
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, \
-    BinaryCohenKappa, BinaryFBetaScore, BinaryPrecisionRecallCurve
-from sklearn.metrics import confusion_matrix, PrecisionRecallDisplay
-from classifier_old import BertClassifierOld
 from classifier import BertClassifier25 as Bert
+from classifier_old import BertClassifierOld
 
 nltk.download('stopwords')
 

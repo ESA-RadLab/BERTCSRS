@@ -1,13 +1,11 @@
 import gc
 import sys
 import nltk
-import numpy as np
 import torch
 import reader
 
 from transformers import AutoTokenizer
 from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore
-from sklearn.metrics import confusion_matrix
 from classifier_old import BertClassifierOld
 from classifier import BertClassifier25 as bert
 
