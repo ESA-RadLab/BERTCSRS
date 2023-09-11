@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-fold_path = "Kfolds\output"
+fold_path = "Kfolds/output/CNS"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -63,11 +63,24 @@ FN_results = FN_results.sort_values("Count", ascending=False)
 FP_results = pd.DataFrame({"Title-abstract": FP_titleabstracts, "Count": FP_count, "Average prediction": FP_prediction})
 FP_results = FP_results.sort_values("Count", ascending=False)
 
-if os.path.exists("Kfolds/Kfold_results.xlsx"):
-    with pd.ExcelWriter(f"{fold_path}/Titleabstracts.xlsx", mode='a', if_sheet_exists='clear') as writer:
+combined_results = []
+
+for _, result in FN_results.iterrows():
+    if int(result['Count']) >= 5:
+        combined_results.append(result)
+
+for _, result in FP_results.iterrows():
+    if int(result['Count']) >= 5:
+        combined_results.append(result)
+
+combined_results = pd.DataFrame(combined_results)
+combined_results.to_csv(f"{fold_path}/Titleabstracts_to_review_CNS.csv")
+
+if os.path.exists(f"{fold_path}/Titleabstracts.xlsx"):
+    with pd.ExcelWriter(f"{fold_path}/Titleabstracts.xlsx", mode='a', if_sheet_exists='replace') as writer:
         FN_results.to_excel(writer, sheet_name="False Negatives")
 else:
     FN_results.to_excel(f"{fold_path}/Titleabstracts.xlsx", sheet_name="False Negatives")
 
-with pd.ExcelWriter(f"{fold_path}/Titleabstracts.xlsx", mode='a', if_sheet_exists='new') as writer:
+with pd.ExcelWriter(f"{fold_path}/Titleabstracts.xlsx", mode='a', if_sheet_exists='replace') as writer:
     FP_results.to_excel(writer, sheet_name="False Positives")

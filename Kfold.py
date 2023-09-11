@@ -113,6 +113,7 @@ for i, version in enumerate(version_list):
     summaryname = f"models/{bert}/{version}/#summary.txt"
     fn_name = f"output/{bert}_{version}_epoch{epoch}_false_neg.csv"
     fp_name = f"output/{bert}_{version}_epoch{epoch}_false_pos.csv"
+    outputname = f"output/{bert}_{version}_epoch{epoch}.csv"
     results_name = "Kfolds/Kfold_results_SD.xlsx"
 
     with zipfile.ZipFile(f"{bert}_{version}_fold{i}.zip", mode="w") as zip:
