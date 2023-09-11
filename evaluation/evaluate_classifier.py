@@ -64,7 +64,7 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     recall = BinaryRecall(threshold=0.5)
     recall_1 = BinaryRecall(threshold=0.2)
     recall_3 = BinaryRecall(threshold=0.3)
-    auroc = BinaryAUROC(thresholds=10)
+    # auroc = BinaryAUROC(thresholds=10)
     fB = BinaryFBetaScore(beta=2., threshold=0.5)
     fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
@@ -81,7 +81,7 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
         recall = recall.cuda()
         recall_1 = recall_1.cuda()
         recall_3 = recall_3.cuda()
-        auroc = auroc.cuda()
+        # auroc = auroc.cuda()
         fB = fB.cuda()
         fB_3 = fB_3.cuda()
         fB_1 = fB_1.cuda()
@@ -117,7 +117,7 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
         batch_recall = recall(output, test_label)
         recall_1(output, test_label)
         recall_3(output, test_label)
-        auroc(output, test_label)
+        # auroc(output, test_label)
         batch_fB = fB(output, test_label)
         fB_3(output, test_label)
         fB_1(output, test_label)
@@ -152,8 +152,8 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     test_recall3 = recall_3.compute()
     recall_3.reset()
 
-    test_auroc = auroc.compute()
-    auroc.reset()
+    # test_auroc = auroc.compute()
+    # auroc.reset()
 
     test_fB = fB.compute()
     fB.reset()
@@ -177,8 +177,8 @@ def test(bert_name, version, epoch, data_path, batch_size, old_model=False):
     print(
         f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} "
         f"precision3:{test_precision3:.4f} fBeta3:{test_fB3:.4f} acc3:{test_acc3:.4f} recall2:{test_recall1:.4f} precision2:{test_precision1:.4f} "
-        f"fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} "
-        f"auroc:{test_auroc:.4f}")
+        f"fBeta2:{test_fB1:.4f} acc2:{test_acc1:.4f} ")
+        # f"auroc:{test_auroc:.4f}")
 
     return test_recall.cpu().numpy(), test_precision.cpu().numpy(), test_acc.cpu().numpy(), test_fB.cpu().numpy()
 
