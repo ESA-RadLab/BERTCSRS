@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
+import zipfile
 
 bert = 'medbert'
 
@@ -104,3 +105,20 @@ if os.path.exists("Kfolds/Kfold_results_SD.xlsx"):
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
     Kfold_results.to_excel("Kfolds/Kfold_results_SD.xlsx", sheet_name=bert)
+
+
+for i, version in enumerate(version_list):
+    epoch = best_epoch_list[i]
+    logsname = f"models/{bert}/{version}/logs"
+    summaryname = f"models/{bert}/{version}/#summary.txt"
+    fn_name = f"output/{bert}_{version}_epoch{epoch}_false_neg.csv"
+    fp_name = f"output/{bert}_{version}_epoch{epoch}_false_pos.csv"
+    results_name = "Kfolds/Kfold_results_SD.xlsx"
+
+    with zipfile.ZipFile(f"{bert}_{version}_fold{i}.zip", mode="w") as zip:
+        zip.write(logsname, os.path.basename(logsname))
+        zip.write(summaryname, os.path.basename(summaryname))
+        zip.write(outputname, os.path.basename(outputname))
+        zip.write(fn_name, os.path.basename(fn_name))
+        zip.write(fp_name, os.path.basename(fp_name))
+        zip.write(results_name, os.path.basename(results_name))
