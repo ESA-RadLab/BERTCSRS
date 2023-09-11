@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+
 import pandas as pd
 import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
@@ -25,6 +27,9 @@ recall5_list = []
 precision5_list = []
 accuracy5_list = []
 Fbeta5_list = []
+
+start_time = datetime.now()
+attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
@@ -55,7 +60,7 @@ for fold in folds:
 
     recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, batch_size)
 
-    output_path = "output"
+    output_path = f"Kfolds/output/SD/{attempt}/{fold}"
     precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)
 
     best_threshold = 0.5
@@ -107,19 +112,19 @@ else:
     Kfold_results.to_excel("Kfolds/Kfold_results_SD.xlsx", sheet_name=bert)
 
 
-for i, version in enumerate(version_list):
-    epoch = best_epoch_list[i]
-    logsname = f"models/{bert}/{version}/logs"
-    summaryname = f"models/{bert}/{version}/#summary.txt"
-    fn_name = f"output/{bert}_{version}_epoch{epoch}_false_neg.csv"
-    fp_name = f"output/{bert}_{version}_epoch{epoch}_false_pos.csv"
-    outputname = f"output/{bert}_{version}_epoch{epoch}.csv"
-    results_name = "Kfolds/Kfold_results_SD.xlsx"
-
-    with zipfile.ZipFile(f"{bert}_{version}_fold{i}.zip", mode="w") as zip:
-        zip.write(logsname, os.path.basename(logsname))
-        zip.write(summaryname, os.path.basename(summaryname))
-        zip.write(outputname, os.path.basename(outputname))
-        zip.write(fn_name, os.path.basename(fn_name))
-        zip.write(fp_name, os.path.basename(fp_name))
-        zip.write(results_name, os.path.basename(results_name))
+# for i, version in enumerate(version_list):
+#     epoch = best_epoch_list[i]
+#     logsname = f"models/{bert}/{version}/logs"
+#     summaryname = f"models/{bert}/{version}/#summary.txt"
+#     fn_name = f"output/{bert}_{version}_epoch{epoch}_false_neg.csv"
+#     fp_name = f"output/{bert}_{version}_epoch{epoch}_false_pos.csv"
+#     outputname = f"output/{bert}_{version}_epoch{epoch}.csv"
+#     results_name = "Kfolds/Kfold_results_SD.xlsx"
+#
+#     with zipfile.ZipFile(f"{bert}_{version}_fold{i}.zip", mode="w") as zip:
+#         zip.write(logsname, os.path.basename(logsname))
+#         zip.write(summaryname, os.path.basename(summaryname))
+#         zip.write(outputname, os.path.basename(outputname))
+#         zip.write(fn_name, os.path.basename(fn_name))
+#         zip.write(fp_name, os.path.basename(fp_name))
+#         zip.write(results_name, os.path.basename(results_name))
