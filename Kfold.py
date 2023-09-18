@@ -8,7 +8,7 @@ import zipfile
 
 bert = 'medbert'
 
-fold_path = "Kfolds/data/SD"
+fold_path = "Kfolds/data/SD/corrected"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -58,7 +58,7 @@ for fold in folds:
 
     batch_size = 8
 
-    output_path = f"Kfolds/output/SD/{attempt}/{fold}"
+    output_path = f"Kfolds/output/SD/corrected/{attempt}/{fold}"
 
     recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, output_path, batch_size)
 
