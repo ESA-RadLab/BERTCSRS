@@ -10,7 +10,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecal
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifier25 as Bert
+from classifier import BertClassifier2525 as Bert
 from classifier_old import BertClassifierOld
 
 nltk.download('stopwords')

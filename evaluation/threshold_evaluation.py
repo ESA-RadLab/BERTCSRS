@@ -7,7 +7,7 @@ import reader
 from transformers import AutoTokenizer
 from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryF1Score, BinaryCohenKappa, BinaryFBetaScore
 from classifier_old import BertClassifierOld
-from classifier import BertClassifier25 as bert
+from classifier import BertClassifier2525 as Bert
 
 
 nltk.download('stopwords')
@@ -36,7 +36,7 @@ def test(bert_name, model_path, data_path, batch_size, threshold, old_model=Fals
     if old_model:
         model = BertClassifierOld(hidden=hidden_layer, model_type=current_model)
     else:
-        model = bert(hidden=hidden_layer, model_type=current_model)
+        model = Bert(hidden=hidden_layer, model_type=current_model)
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
