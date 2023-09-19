@@ -8,7 +8,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 bert = 'medbert'
 
-fold_path = "Kfolds/data/SD"
+fold_path = "Kfolds/data/SD/corrected"
 folds = os.listdir(fold_path)
 folds.sort()
 
