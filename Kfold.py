@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
-import zipfile
+# import zipfile
 
 bert = 'medbert'
 
@@ -33,7 +33,7 @@ attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
-    train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
+    train_path = os.path.join(fold_path, fold, "sd_triple_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
     LR = 2e-5
