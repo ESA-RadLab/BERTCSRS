@@ -33,7 +33,7 @@ attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
-    train_path = os.path.join(fold_path, fold, "sd_triple_balanced_raw.csv")
+    train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
     LR = 2e-5
@@ -42,7 +42,7 @@ for fold in folds:
     dropout = 0.2
     step_size = 5
     gamma = 1
-    pos_weight = 10
+    pos_weight = 20
 
     valid_result, version = bert_classifier_train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
                                                         pos_weight, gamma, step_size)
