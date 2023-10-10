@@ -10,7 +10,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecal
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifier25 as Bert
+from classifier import BertClassifierParallel as Bert
 from classifier_old import BertClassifierOld
 
 nltk.download('stopwords')
@@ -29,7 +29,7 @@ model_options = {
 }
 
 
-def test(bert_name, version, epoch, data_path, output_path, batch_size, old_model=False):
+def test(bert_name, version, epoch, data_path, output_path, batch_size, vocab, old_model=False):
     current_model = model_options[bert_name][0]
     hidden_layer = model_options[bert_name][1]
 
@@ -51,7 +51,7 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
     model.eval()
 
     tokenizer = AutoTokenizer.from_pretrained(current_model)
-    test_dataloader = reader.load(data_path, tokenizer, batch_size, old_model, shuffle=False)
+    test_dataloader, _ = reader.load(data_path, tokenizer, batch_size, vocab=vocab, shuffle=False)
 
     torch.cuda.empty_cache()
 
@@ -90,7 +90,7 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
     full_output = []
 
     i = 0
-    for test_input, test_label in test_dataloader:
+    for test_input, test_label, encoded_texts in test_dataloader:
         i += 1
         # test_label = test_label.float().unsqueeze(-1).to(device)
         if not old_model:
@@ -99,8 +99,10 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
 
         mask = test_input['attention_mask'].to(device)
         input_id = test_input['input_ids'].squeeze(1).to(device)
+        encoded_texts = encoded_texts.unsqueeze(1)
+        encoded_texts = encoded_texts.float().to(device)
 
-        output, attentions = model(input_id, mask)
+        output, attentions = model(input_id, mask, encoded_texts)
         # full_output.append(output[:].detach().cpu().numpy())
 
         # acc = (output.argmax(dim=1) == test_label).sum().item()
