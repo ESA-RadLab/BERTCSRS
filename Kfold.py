@@ -6,9 +6,9 @@ import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
 # import zipfile
 
-bert = 'medbert'
+bert = 'pubmed_abstract'
 
-fold_path = "Kfolds/data/SD/corrected"
+fold_path = "Kfolds/data/SD/with_titles"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -42,7 +42,7 @@ for fold in folds:
     dropout = 0.2
     step_size = 5
     gamma = 1
-    pos_weight = 20
+    pos_weight = 10
 
     valid_result, version = bert_classifier_train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
                                                         pos_weight, gamma, step_size)

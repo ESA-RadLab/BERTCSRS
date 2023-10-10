@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-fold_path = "Kfolds/output/SD"
+fold_path = "Kfolds/output/SD/corrected"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -11,10 +11,12 @@ folds = filtered_folds
 FN_titleabstracts = []
 FN_count = []
 FN_prediction = []
+FN_fold = []
 
 FP_titleabstracts = []
 FP_count = []
 FP_prediction = []
+FP_fold = []
 
 FN_duplicate = []
 FP_duplicate = []
@@ -44,6 +46,7 @@ for fold in folds:
                     FN_titleabstracts.append(FN)
                     FN_count.append(1)
                     FN_prediction.append(FN_df.loc[j, ['prediction']][0])
+                    FN_fold.append(fold)
                     if duplicates["duplicates"].eq(FN).any():
                         FN_duplicate.append(True)
                     else:
@@ -66,14 +69,15 @@ for fold in folds:
                     FP_titleabstracts.append(FP)
                     FP_count.append(1)
                     FP_prediction.append(FP_df.loc[j, ['prediction']][0])
+                    FP_fold.append(fold)
                     if duplicates["duplicates"].eq(FP).any():
                         FP_duplicate.append(True)
                     else:
                         FP_duplicate.append(False)
 
-FN_results = pd.DataFrame({"Title-abstract": FN_titleabstracts, "Count": FN_count, "Average prediction": FN_prediction, "Duplicate": FN_duplicate})
+FN_results = pd.DataFrame({"Title-abstract": FN_titleabstracts, "Count": FN_count, "Average prediction": FN_prediction, "Fold": FN_fold, "Duplicate": FN_duplicate})
 FN_results = FN_results.sort_values("Count", ascending=False)
-FP_results = pd.DataFrame({"Title-abstract": FP_titleabstracts, "Count": FP_count, "Average prediction": FP_prediction, "Duplicate": FP_duplicate})
+FP_results = pd.DataFrame({"Title-abstract": FP_titleabstracts, "Count": FP_count, "Average prediction": FP_prediction, "Fold": FP_fold, "Duplicate": FP_duplicate})
 FP_results = FP_results.sort_values("Count", ascending=False)
 
 combined_results = []
