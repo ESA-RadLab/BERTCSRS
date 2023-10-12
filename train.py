@@ -12,7 +12,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryR
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifierParallel as Bert
+from classifier import BertClassifier25 as Bert
 
 model_options = {
     "biobert": ["dmis-lab/biobert-v1.1", 768],
@@ -62,8 +62,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     print("Retrieving data")
     tokenizer = AutoTokenizer.from_pretrained(current_model)
-    train_dataloader, vocab = reader.load(train_path, tokenizer, batch_size)
-    val_dataloader, _ = reader.load(val_path, tokenizer, batch_size, vocab=vocab)
+    train_dataloader = reader.load(train_path, tokenizer, batch_size)
+    val_dataloader = reader.load(val_path, tokenizer, batch_size)
 
     print("Building optimizer")
     # loss_weights = torch.Tensor([1., 17.])  # pick the weights
@@ -112,11 +112,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     print("Training")
     length = len(train_dataloader)
-    model.train()
     for epoch_num in range(1, epochs + 1):
         # if epoch_num > decayepoch:
         #     learning_rate = learning_rate * gamma
         #     optimizer
+        model.train()
 
         total_loss_train = 0
 
@@ -127,19 +127,17 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         i = 0
         epoch_log = open(os.path.join(log_path, "epoch_log " + str(epoch_num) + ".txt"), 'w')
 
-        for train_input, train_label, encoded_texts in train_dataloader:
+        for train_input, train_label in train_dataloader:
             i += 1
 
             train_label = train_label.float().unsqueeze(-1).to(device)
             mask = train_input['attention_mask'].to(device)
             input_id = train_input['input_ids'].squeeze(1).to(device)
-            encoded_texts = encoded_texts.unsqueeze(1)
-            encoded_texts = encoded_texts.float().to(device)
 
             model.zero_grad()
             optimizer.zero_grad()
 
-            output, attentions = model(input_id, mask, encoded_texts)
+            output, attentions = model(input_id, mask)
             # output, .. = model(input_id, mask)
 
             batch_loss = criterion(output, train_label)
@@ -232,15 +230,13 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         # val_output = []
 
         with torch.no_grad():
-            for val_input, val_label, encoded_texts in val_dataloader:
+            for val_input, val_label in val_dataloader:
                 i += 1
                 val_label = val_label.float().unsqueeze(-1).to(device)
                 mask = val_input['attention_mask'].to(device)
                 input_id = val_input['input_ids'].squeeze(1).to(device)
-                encoded_texts = encoded_texts.unsqueeze(1)
-                encoded_texts = encoded_texts.float().to(device)
 
-                output, attentions = model(input_id, mask, encoded_texts)
+                output, attentions = model(input_id, mask)
 
                 val_loss = criterion(output, val_label)
                 total_loss_val += val_loss.item()
@@ -350,8 +346,7 @@ if __name__ == "__main__":
     val_path = os.path.join("data", "cns_val_new1.csv")
 
     LR = 2e-5
-    EPOCHS = 1
-    batch_size = 8
+    EPOCHS = 10
 
-    train('smallbert', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
+    train('mediumbert', train_path, val_path, LR, EPOCHS, 15, 0.2, 10, 1, 1)
 

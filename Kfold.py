@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 import pandas as pd
-import bert_classifier_train
+import train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
 # import zipfile
 
@@ -44,7 +44,7 @@ for fold in folds:
     gamma = 1
     pos_weight = 10
 
-    valid_result, version = bert_classifier_train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
+    valid_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
                                                         pos_weight, gamma, step_size)
 
     valid_result_list.append(min(valid_result))
