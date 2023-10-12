@@ -41,8 +41,8 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
     else:
         model = Bert(hidden=hidden_layer, model_type=current_model)
 
-    # model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
-    model_path = "../models/Kfold/pubmed_abstract_29.08_11.24_epoch_7.pt"
+    model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
+    # model_path = "../models/Kfold/pubmed_abstract_29.08_11.24_epoch_7.pt"
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
