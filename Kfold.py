@@ -8,7 +8,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 bert = 'pubmed_fulltext'
 
-fold_path = "Kfolds/data/SD/oversampled"
+fold_path = "Kfolds/data/SD/with_titles"
 folds = os.listdir(fold_path)
 folds.sort()
 
