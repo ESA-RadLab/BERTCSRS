@@ -7,7 +7,7 @@ from math import floor
 
 import torch
 from torch import nn
-from torch.optim import AdamW, lr_scheduler
+from torch.optim import AdamW, lr_scheduler, RAdam
 from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryFBetaScore
 from transformers import AutoTokenizer
 
@@ -70,7 +70,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     # criterion = nn.CrossEntropyLoss(weight=loss_weights)
     pos_weight = torch.tensor([pos_weight])
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.0005)
+    optimizer = RAdam(model.parameters(), lr=learning_rate)
 
     acc = BinaryAccuracy(threshold=0.5)
     acc_3 = BinaryAccuracy(threshold=0.3)

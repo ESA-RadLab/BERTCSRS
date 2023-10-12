@@ -36,9 +36,9 @@ for fold in folds:
     train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
-    LR = 2e-5
+    LR = 1e-5
     EPOCHS = 10
-    batch_size = 15
+    batch_size = 10
     dropout = 0.2
     step_size = 5
     gamma = 1
