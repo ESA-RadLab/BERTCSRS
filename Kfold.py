@@ -6,7 +6,7 @@ import bert_classifier_train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
 # import zipfile
 
-bert = 'pubmed_abstract'
+bert = 'pubmed_fulltext'
 
 fold_path = "Kfolds/data/SD/with_titles"
 folds = os.listdir(fold_path)
@@ -33,7 +33,7 @@ attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
-    train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
+    train_path = os.path.join(fold_path, fold, "sd_train_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
     LR = 2e-5

@@ -10,7 +10,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecal
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifierParallel as Bert
+from classifier import BertClassifier25 as Bert
 from classifier_old import BertClassifierOld
 
 nltk.download('stopwords')
@@ -29,7 +29,7 @@ model_options = {
 }
 
 
-def test(bert_name, version, epoch, data_path, output_path, batch_size, vocab, old_model=False):
+def test(bert_name, version, epoch, data_path, output_path, batch_size, old_model=False):
     current_model = model_options[bert_name][0]
     hidden_layer = model_options[bert_name][1]
 
@@ -41,7 +41,8 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, vocab, o
     else:
         model = Bert(hidden=hidden_layer, model_type=current_model)
 
-    model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
+    # model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
+    model_path = "../models/Kfold/pubmed_abstract_29.08_11.24_epoch_7.pt"
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -51,7 +52,7 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, vocab, o
     model.eval()
 
     tokenizer = AutoTokenizer.from_pretrained(current_model)
-    test_dataloader, _ = reader.load(data_path, tokenizer, batch_size, vocab=vocab, shuffle=False)
+    test_dataloader = reader.load(data_path, tokenizer, batch_size, old_model, shuffle=False)
 
     torch.cuda.empty_cache()
 
@@ -90,7 +91,7 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, vocab, o
     full_output = []
 
     i = 0
-    for test_input, test_label, encoded_texts in test_dataloader:
+    for test_input, test_label in test_dataloader:
         i += 1
         # test_label = test_label.float().unsqueeze(-1).to(device)
         if not old_model:
@@ -99,10 +100,8 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, vocab, o
 
         mask = test_input['attention_mask'].to(device)
         input_id = test_input['input_ids'].squeeze(1).to(device)
-        encoded_texts = encoded_texts.unsqueeze(1)
-        encoded_texts = encoded_texts.float().to(device)
 
-        output, attentions = model(input_id, mask, encoded_texts)
+        output, attentions = model(input_id, mask)
         # full_output.append(output[:].detach().cpu().numpy())
 
         # acc = (output.argmax(dim=1) == test_label).sum().item()
@@ -202,13 +201,14 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, vocab, o
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
     modelname = "pubmed_abstract"
-    version = "29.08_10.13"
-    epoch = 1
+    version = "29.08_11.24"
+    epoch = 7
 
-    data_path = os.path.join("../data", "cns_test_raw.csv")
+    data_path = os.path.join("../data", "crowd_cns.csv")
+    output_path = os.path.join("../data", "output_cns.csv")
     # model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
     batch_size = 10
 
-    test(modelname, version, epoch, data_path, batch_size)
+    test(modelname, version, epoch, data_path, output_path, batch_size)
     # test(bert_name, model_path, data_path, batch_size, True)
