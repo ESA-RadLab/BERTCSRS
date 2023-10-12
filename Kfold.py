@@ -8,7 +8,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 bert = 'pubmed_fulltext'
 
-fold_path = "Kfolds/data/SD/with_titles"
+fold_path = "Kfolds/data/SD/oversampled"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -33,12 +33,12 @@ attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
-    train_path = os.path.join(fold_path, fold, "sd_train_raw.csv")
+    train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
     LR = 2e-5
-    EPOCHS = 8
-    batch_size = 10
+    EPOCHS = 10
+    batch_size = 15
     dropout = 0.2
     step_size = 5
     gamma = 1
