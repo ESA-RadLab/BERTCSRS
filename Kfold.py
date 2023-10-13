@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
+
 # import zipfile
 
 bert = 'pubmed_fulltext'
@@ -36,8 +37,8 @@ for fold in folds:
     train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
-    LR = 1e-5
-    EPOCHS = 10
+    LR = 2e-5
+    EPOCHS = 12
     batch_size = 10
     dropout = 0.2
     step_size = 5
@@ -45,7 +46,7 @@ for fold in folds:
     pos_weight = 10
 
     valid_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
-                                                        pos_weight, gamma, step_size)
+                                        pos_weight, gamma, step_size)
 
     valid_result_list.append(min(valid_result))
     version_list.append(version)
@@ -60,7 +61,8 @@ for fold in folds:
 
     output_path = f"Kfolds/output/SD/{attempt}/{fold}"
 
-    recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, output_path, batch_size)
+    recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, output_path,
+                                                                      batch_size)
 
     precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)
 
@@ -101,17 +103,18 @@ for fold in folds:
 
 # folds = folds[0]  # debug
 
-Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": best_epoch_list, "Recall": recall5_list, "Precision": precision5_list,
-                              "Accuracy": accuracy5_list, "Fbeta": Fbeta5_list, "Best Recall": best_recall_list, "Best Precision": best_precision_list,
-                              "Best Threshold": best_threshold_list, "False Neg(0.5)": fn_list, "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
-
+Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": best_epoch_list, "Recall": recall5_list,
+                              "Precision": precision5_list,
+                              "Accuracy": accuracy5_list, "Fbeta": Fbeta5_list, "Best Recall": best_recall_list,
+                              "Best Precision": best_precision_list,
+                              "Best Threshold": best_threshold_list, "False Neg(0.5)": fn_list,
+                              "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
 
 if os.path.exists("Kfolds/Kfold_results_SD.xlsx"):
     with pd.ExcelWriter("Kfolds/Kfold_results_SD.xlsx", mode='a', if_sheet_exists='new') as writer:
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
     Kfold_results.to_excel("Kfolds/Kfold_results_SD.xlsx", sheet_name=bert)
-
 
 # for i, version in enumerate(version_list):
 #     epoch = best_epoch_list[i]
