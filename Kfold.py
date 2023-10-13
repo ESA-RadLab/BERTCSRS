@@ -38,7 +38,7 @@ for fold in folds:
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
     LR = 2e-5
-    EPOCHS = 12
+    EPOCHS = 10
     batch_size = 10
     dropout = 0.2
     step_size = 5
@@ -115,6 +115,9 @@ if os.path.exists("Kfolds/Kfold_results_SD.xlsx"):
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
     Kfold_results.to_excel("Kfolds/Kfold_results_SD.xlsx", sheet_name=bert)
+
+_, best_fold = min(valid_result_list)
+print(f"\nBest fold: {best_fold}\n")
 
 # for i, version in enumerate(version_list):
 #     epoch = best_epoch_list[i]
