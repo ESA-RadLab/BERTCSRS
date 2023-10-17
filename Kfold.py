@@ -37,8 +37,8 @@ for fold in folds:
     train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
-    LR = 2e-5
-    EPOCHS = 10
+    LR = 1e-5
+    EPOCHS = 15
     batch_size = 10
     dropout = 0.2
     step_size = 5
@@ -116,7 +116,7 @@ if os.path.exists("Kfolds/Kfold_results_SD.xlsx"):
 else:
     Kfold_results.to_excel("Kfolds/Kfold_results_SD.xlsx", sheet_name=bert)
 
-_, best_fold = min(valid_result_list)
+best_fold = valid_result_list.index(min(valid_result_list))
 print(f"\nBest fold: {best_fold}\n")
 
 # for i, version in enumerate(version_list):
