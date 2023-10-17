@@ -1,4 +1,5 @@
 import os
+import shutil
 from datetime import datetime
 
 import pandas as pd
@@ -6,6 +7,9 @@ import train
 from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 # import zipfile
+
+_, _, free_disk_space = shutil.disk_usage("/")
+free_disk_space = free_disk_space / (2**30)
 
 bert = 'pubmed_fulltext'
 
@@ -15,6 +19,20 @@ folds.sort()
 
 filtered_folds = [fold for fold in folds if "fold" in fold]
 folds = filtered_folds
+
+
+LR = 2e-5
+EPOCHS = 10
+batch_size = 10
+dropout = 0.2
+step_size = 5
+gamma = 1
+pos_weight = 10
+
+
+required_disk_space = len(folds) * EPOCHS * 0.45
+if free_disk_space < required_disk_space:
+    raise Exception("Not enough Disk Space! Required Disk Space: %dGB" % required_disk_space)
 
 best_epoch_list = []
 best_recall_list = []
@@ -36,14 +54,6 @@ for fold in folds:
     print("\n" + fold)
     train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
-
-    LR = 2e-5
-    EPOCHS = 10
-    batch_size = 10
-    dropout = 0.2
-    step_size = 5
-    gamma = 1
-    pos_weight = 10
 
     valid_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
                                         pos_weight, gamma, step_size, freeze=True)
