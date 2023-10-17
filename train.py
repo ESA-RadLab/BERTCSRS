@@ -28,7 +28,7 @@ model_options = {
 }
 
 
-def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout, pos_weight, gamma, step_size):
+def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout, pos_weight, gamma, step_size, freeze=False):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -81,7 +81,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     recall = BinaryRecall(threshold=0.5)
     recall_1 = BinaryRecall(threshold=0.2)
     recall_3 = BinaryRecall(threshold=0.3)
-    # auroc = BinaryAUROC(thresholds=10)
     fB = BinaryFBetaScore(beta=2., threshold=0.5)
     fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
@@ -104,7 +103,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         recall = recall.cuda()
         recall_1 = recall_1.cuda()
         recall_3 = recall_3.cuda()
-        # auroc = auroc.cuda()
         fB = fB.cuda()
         fB_3 = fB_3.cuda()
         fB_1 = fB_1.cuda()
@@ -117,6 +115,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         #     learning_rate = learning_rate * gamma
         #     optimizer
         model.train()
+
+        if freeze and epoch_num > 5:
+            model.bert.requires_grad = False
+            print(f"frozen bert {not model.bert.requires_grad}")
 
         total_loss_train = 0
 
@@ -146,18 +148,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             # result = output.argmax(dim=1).unsqueeze(-1)
 
             acc(output, train_label)
-            # acc_3(output, train_label)
-            # acc_1(output, train_label)
             precision(output, train_label)
-            # precision_3(output, train_label)
-            # precision_1(output, train_label)
             recall(output, train_label)
-            # recall_1(output, train_label)
-            # recall_3(output, train_label)
-            # auroc(output, train_label)
             fB(output, train_label)
-            # fB_3(output, train_label)
-            # fB_1(output, train_label)
 
             batch_loss.backward()
 
@@ -194,34 +187,12 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         train_acc = acc.compute()
         acc.reset()
-        # train_acc3 = acc_3.compute()
-        # acc_3.reset()
-        # train_acc1 = acc_1.compute()
-        # acc_1.reset()
 
         train_precision = precision.compute()
         precision.reset()
-        # train_precision3 = precision_3.compute()
-        # precision_3.reset()
-        # train_precision1 = precision_1.compute()
-        # precision_1.reset()
 
         train_recall = recall.compute()
         recall.reset()
-        # train_recall1 = recall_1.compute()
-        # recall_1.reset()
-        # train_recall3 = recall_3.compute()
-        # recall_3.reset()
-
-        # train_auroc = auroc.compute()
-        # auroc.reset()
-
-        # train_fB = fB.compute()
-        # fB.reset()
-        # train_fB3 = fB_3.compute()
-        # fB_3.reset()
-        # train_fB1 = fB_1.compute()
-        # fB_1.reset()
 
         total_loss_val = 0
         print("Validating")
@@ -254,14 +225,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 fB(output, val_label)
                 fB_3(output, val_label)
                 fB_1(output, val_label)
-
-                # result = output.argmax(dim=1).unsqueeze(-1)
-
-                # batch_acc = acc(output, val_label)
-                # batch_precision = precision(output, val_label)
-                # batch_recall = recall(output, val_label)
-
-                # val_output.extend(output[:, 0].detach().cpu().numpy())
 
                 sys.stdout.flush()
                 gc.collect()
@@ -296,9 +259,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         recall_1.reset()
         val_recall3 = recall_3.compute()
         recall_3.reset()
-        #
-        # val_auroc = auroc.compute()
-        # auroc.reset()
 
         val_fB = fB.compute()
         fB.reset()
@@ -346,7 +306,7 @@ if __name__ == "__main__":
     val_path = os.path.join("data", "cns_val_new1.csv")
 
     LR = 2e-5
-    EPOCHS = 10
+    EPOCHS = 15
 
-    train('mediumbert', train_path, val_path, LR, EPOCHS, 15, 0.2, 10, 1, 1)
+    train('minibert', train_path, val_path, LR, EPOCHS, 15, 0.2, 10, 1, 1)
 
