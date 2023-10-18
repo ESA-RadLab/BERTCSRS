@@ -116,14 +116,14 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         #     optimizer
         model.train()
 
-        if freeze and epoch_num > 5:
+        if freeze and epoch_num > 7:
             model.bert.requires_grad = False
             print(f"frozen bert {not model.bert.requires_grad}")
 
-        if freeze and epoch_num == 6:
-            learning_rate = learning_rate * 0.1
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = learning_rate
+        # if freeze and epoch_num == 6:
+        #     learning_rate = learning_rate * 0.1
+        #     for param_group in optimizer.param_groups:
+        #         param_group['lr'] = learning_rate
 
         total_loss_train = 0
 
