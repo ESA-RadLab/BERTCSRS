@@ -12,7 +12,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryR
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifier25 as Bert
+from classifier import BertClassifier10 as Bert
 
 model_options = {
     "biobert": ["dmis-lab/biobert-v1.1", 768],
