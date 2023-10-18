@@ -8,9 +8,6 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 # import zipfile
 
-_, _, free_disk_space = shutil.disk_usage("/")
-free_disk_space = free_disk_space / (2**30)
-
 bert = 'pubmed_fulltext'
 
 fold_path = "Kfolds/data/SD/with_titles"
@@ -30,9 +27,11 @@ gamma = 1
 pos_weight = 10
 
 
+_, _, free_disk_space = shutil.disk_usage("/")
+free_disk_space = free_disk_space / (2**30)
 required_disk_space = len(folds) * EPOCHS * 0.45
 if free_disk_space < required_disk_space:
-    raise Exception("Not enough Disk Space! Required Disk Space: %dGB" % required_disk_space)
+    raise Exception(f"Not enough Disk Space! Required Disk Space: {required_disk_space} GB. Free Disk Space: {free_disk_space:.2f} GB")
 
 best_epoch_list = []
 best_recall_list = []
