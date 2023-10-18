@@ -66,12 +66,12 @@ for fold in folds:
 
     data_path = os.path.join(fold_path, fold, "sd_fulltest_raw.csv")
 
-    batch_size = 8
+    test_batch_size = 8
 
     output_path = f"Kfolds/output/SD/{attempt}/{fold}"
 
     recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, output_path,
-                                                                      batch_size)
+                                                                      test_batch_size)
 
     precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)
 
