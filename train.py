@@ -12,7 +12,7 @@ from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryR
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifier10 as Bert
+from classifier import BertClassifierConv as Bert
 
 model_options = {
     "biobert": ["dmis-lab/biobert-v1.1", 768],
@@ -313,5 +313,5 @@ if __name__ == "__main__":
     LR = 2e-5
     EPOCHS = 15
 
-    train('minibert', train_path, val_path, LR, EPOCHS, 15, 0.2, 10, 1, 1)
+    train('biobert', train_path, val_path, LR, EPOCHS, 5, 0.2, 10, 1, 1)
 

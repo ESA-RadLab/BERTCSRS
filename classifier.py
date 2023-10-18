@@ -94,6 +94,56 @@ class BertClassifier10(nn.Module):
         else:
             return hidden_layer3, bert_outputs
 
+
+class BertClassifierConv(nn.Module):
+    """The classifier model. BERT with a classification output head.
+  """
+
+    def __init__(self, hidden, model_type, dropout=0.2, sigma=True):
+
+        super(BertClassifierConv, self).__init__()
+        self.relu = nn.ReLU()
+
+        self.bert = BertModel.from_pretrained(model_type, output_attentions=True)
+        self.dropBert = nn.Dropout(dropout)
+
+        self.convolution = nn.Conv1d(1, 10, 5)
+        conv_size = hidden - 5 + 1
+
+        self.pool = nn.MaxPool1d(conv_size//10)
+        self.flatten = nn.Flatten()
+
+        self.linear1 = nn.Linear(100, 10)
+        self.dropout1 = nn.Dropout(dropout)
+
+        self.linear3 = nn.Linear(10, 1)
+
+        if sigma:
+            self.activation = nn.Sigmoid()
+        self.sigma = sigma
+
+    def forward(self, input_id, mask):
+
+        bert_outputs = self.bert(input_ids=input_id, attention_mask=mask)
+        pooled_output = bert_outputs['pooler_output']
+        pooled_output = self.dropBert(self.relu(pooled_output.unsqueeze(1)))
+
+        conv_layer = self.convolution(pooled_output)
+        pool_layer = self.pool(self.relu(conv_layer))
+        flat_layer = self.flatten(pool_layer)
+
+        hidden_layer1 = self.linear1(self.relu(flat_layer))
+        hidden_layer1 = self.dropout1(self.relu(hidden_layer1))
+
+        hidden_layer3 = self.linear3(hidden_layer1)
+
+        if self.sigma:
+            final_layer = self.activation(hidden_layer3)
+            return final_layer, bert_outputs
+        else:
+            return hidden_layer3, bert_outputs
+
+
 class BertClassifier25(nn.Module):
     """The classifier model. BERT with a classification output head.
   """
@@ -224,6 +274,7 @@ class BertClassifier5025(nn.Module):
             return final_layer, bert_outputs
         else:
             return hidden_layer3, bert_outputs
+
 
 class BertClassifier2525(nn.Module):
     """The classifier model. BERT with a classification output head.
