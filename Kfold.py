@@ -108,6 +108,13 @@ for fold in folds:
     fp_list.append(false_pos)
     fn_list.append(false_neg)
 
+    summary_path = os.path.join("models", bert, version, "#summary.txt")
+
+    summary_file = open(summary_path, 'r')
+    summary_content = summary_file.read()
+    print("\nSUMMARY:\n" + summary_content)
+    summary_file.close()
+
     # break  # debug
 
 # folds = folds[0]  # debug
