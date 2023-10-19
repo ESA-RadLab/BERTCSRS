@@ -273,8 +273,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         val_fB1 = fB_1.compute()
         fB_1.reset()
 
+        avg_val_loss = total_loss_val / len(val_dataloader)
+
         train_log = f"EPOCH {epoch_num} TRAIN avloss: {(total_loss_train / len(train_dataloader)):.6f} Acc: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
-        val_log = f"EPOCH {epoch_num} VALID avloss: {(total_loss_val / len(val_dataloader)):.6f} \n" \
+        val_log = f"EPOCH {epoch_num} VALID avloss: {avg_val_loss:.6f} \n" \
                   f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
                   f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
                   f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n"
@@ -295,10 +297,10 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print(train_log)
         print(val_log)
 
-        if (val_loss - 0.1) > lowest_val_loss:
+        if (avg_val_loss - 0.1) > lowest_val_loss:
             break
-        elif val_loss < lowest_val_loss:
-            lowest_val_loss = val_loss
+        elif avg_val_loss < lowest_val_loss:
+            lowest_val_loss = avg_val_loss
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
 
@@ -318,6 +320,7 @@ if __name__ == "__main__":
 
     LR = 2e-5
     EPOCHS = 15
+    batch_size = 15
 
-    train('biobert', train_path, val_path, LR, EPOCHS, 5, 0.2, 10, 1, 1)
+    train('minibert', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
 
