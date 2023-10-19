@@ -110,13 +110,13 @@ class BertClassifierConv(nn.Module):
         self.convolution = nn.Conv1d(1, 10, 5)
         conv_size = hidden - 5 + 1
 
-        self.pool = nn.MaxPool1d(conv_size//10)
+        self.pool = nn.MaxPool1d(conv_size)
         self.flatten = nn.Flatten()
 
-        self.linear1 = nn.Linear(100, 10)
+        self.linear1 = nn.Linear(10, 5)
         self.dropout1 = nn.Dropout(dropout)
 
-        self.linear3 = nn.Linear(10, 1)
+        self.linear3 = nn.Linear(5, 1)
 
         if sigma:
             self.activation = nn.Sigmoid()
@@ -132,7 +132,7 @@ class BertClassifierConv(nn.Module):
         pool_layer = self.pool(self.relu(conv_layer))
         flat_layer = self.flatten(pool_layer)
 
-        hidden_layer1 = self.linear1(self.relu(flat_layer))
+        hidden_layer1 = self.linear1(flat_layer)
         hidden_layer1 = self.dropout1(self.relu(hidden_layer1))
 
         hidden_layer3 = self.linear3(hidden_layer1)
