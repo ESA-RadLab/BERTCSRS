@@ -107,24 +107,24 @@ class BertClassifierConv(nn.Module):
         self.bert = BertModel.from_pretrained(model_type, output_attentions=True)
         self.dropBert = nn.Dropout(dropout)
 
-        self.convolution3 = nn.Conv1d(1, 3, 3)
-        conv_size3 = hidden - 3 + 1
+        self.convolution3 = nn.Conv1d(1, 3, 10)
+        conv_size3 = hidden - 10 + 1
         self.pool3 = nn.MaxPool1d(conv_size3)
 
-        self.convolution5 = nn.Conv1d(1, 3, 5)
-        conv_size5 = hidden - 5 + 1
+        self.convolution5 = nn.Conv1d(1, 3, 20)
+        conv_size5 = hidden - 20 + 1
         self.pool5 = nn.MaxPool1d(conv_size5)
 
-        self.convolution7 = nn.Conv1d(1, 3, 7)
-        conv_size7 = hidden - 7 + 1
+        self.convolution7 = nn.Conv1d(1, 3, 40)
+        conv_size7 = hidden - 40 + 1
         self.pool7 = nn.MaxPool1d(conv_size7)
 
-        self.convolution9 = nn.Conv1d(1, 3, 9)
-        conv_size9 = hidden - 9 + 1
+        self.convolution9 = nn.Conv1d(1, 3, 80)
+        conv_size9 = hidden - 80 + 1
         self.pool9 = nn.MaxPool1d(conv_size9)
 
-        self.convolution11 = nn.Conv1d(1, 3, 1)
-        conv_size11 = hidden - 11 + 1
+        self.convolution11 = nn.Conv1d(1, 3, 160)
+        conv_size11 = hidden - 160 + 1
         self.pool11 = nn.MaxPool1d(conv_size11)
 
         self.flatten = nn.Flatten()
