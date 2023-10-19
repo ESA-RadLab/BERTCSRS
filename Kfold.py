@@ -19,7 +19,7 @@ folds = filtered_folds
 
 
 LR = 2e-5
-EPOCHS = 10
+EPOCHS = 15
 batch_size = 10
 dropout = 0.2
 step_size = 5
