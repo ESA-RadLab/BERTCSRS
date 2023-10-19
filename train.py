@@ -1,4 +1,5 @@
 import gc
+import math
 import os
 import sys
 import time
@@ -110,6 +111,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     print("Training")
     length = len(train_dataloader)
+    lowest_val_loss = math.inf
     for epoch_num in range(1, epochs + 1):
         # if epoch_num > decayepoch:
         #     learning_rate = learning_rate * gamma
@@ -226,7 +228,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 recall(output, val_label)
                 recall_1(output, val_label)
                 recall_3(output, val_label)
-                # auroc(output, val_label)
                 fB(output, val_label)
                 fB_3(output, val_label)
                 fB_1(output, val_label)
@@ -237,7 +238,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 # if i >= 5:  # debug
                 #     break
 
-        lr_schedule.step()
+        # lr_schedule.step()
         # if epoch_num == step_size:
         #     for g in optimizer.param_groups:
         #         g['lr'] = learning_rate * gamma
@@ -293,6 +294,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         print(train_log)
         print(val_log)
+
+        if (val_loss - 0.1) > lowest_val_loss:
+            break
+        elif val_loss < lowest_val_loss:
+            lowest_val_loss = val_loss
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
 
