@@ -109,30 +109,30 @@ class BertClassifierConv(nn.Module):
 
         self.convolution3 = nn.Conv1d(1, 3, 10)
         conv_size3 = hidden - 10 + 1
-        self.pool3 = nn.AvgPool1d(conv_size3//10, stride=conv_size3//10)
+        self.pool3 = nn.AvgPool1d(conv_size3//20, stride=conv_size3//20)
 
         self.convolution5 = nn.Conv1d(1, 3, 20)
         conv_size5 = hidden - 20 + 1
-        self.pool5 = nn.AvgPool1d(conv_size5//10, stride=conv_size5//10)
+        self.pool5 = nn.AvgPool1d(conv_size5//20, stride=conv_size5//20)
 
         self.convolution7 = nn.Conv1d(1, 3, 40)
         conv_size7 = hidden - 40 + 1
-        self.pool7 = nn.AvgPool1d(conv_size7//10, stride=conv_size7//10)
+        self.pool7 = nn.AvgPool1d(conv_size7//20, stride=conv_size7//20)
 
         self.convolution9 = nn.Conv1d(1, 3, 80)
         conv_size9 = hidden - 80 + 1
-        self.pool9 = nn.AvgPool1d(conv_size9//10, stride=conv_size9//10)
+        self.pool9 = nn.AvgPool1d(conv_size9//20, stride=conv_size9//20)
 
         self.convolution11 = nn.Conv1d(1, 3, 160)
         conv_size11 = hidden - 160 + 1
-        self.pool11 = nn.AvgPool1d(conv_size11//10, stride=conv_size11//10)
+        self.pool11 = nn.AvgPool1d(conv_size11//20, stride=conv_size11//20)
 
         self.flatten = nn.Flatten()
 
-        self.linear1 = nn.Linear(150, 20)
+        self.linear1 = nn.Linear(300, 25)
         self.dropout1 = nn.Dropout(dropout)
 
-        self.linear3 = nn.Linear(20, 1)
+        self.linear3 = nn.Linear(25, 1)
 
         if sigma:
             self.activation = nn.Sigmoid()
