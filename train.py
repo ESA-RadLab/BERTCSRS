@@ -8,7 +8,7 @@ from math import floor
 
 import torch
 from torch import nn
-from torch.optim import AdamW, lr_scheduler, RAdam
+from torch.optim import lr_scheduler, RAdam
 from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryFBetaScore
 from transformers import AutoTokenizer
 
@@ -117,6 +117,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         #     learning_rate = learning_rate * gamma
         #     optimizer
         model.train()
+        # model.set_sigma(False)
 
         # if freeze and epoch_num > 7:
         #     model.bert.requires_grad = False
@@ -204,6 +205,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         total_loss_val = 0
         print("Validating")
         model.eval()
+        # model.set_sigma(True)
         i = 0
         # val_output = []
 
@@ -298,6 +300,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print(val_log)
 
         if (avg_val_loss - 0.1) > lowest_val_loss:
+            print("Early stop")
             break
         elif avg_val_loss < lowest_val_loss:
             lowest_val_loss = avg_val_loss
