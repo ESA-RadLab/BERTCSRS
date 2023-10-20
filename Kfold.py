@@ -18,7 +18,7 @@ filtered_folds = [fold for fold in folds if "fold" in fold]
 folds = filtered_folds
 
 LR = 2e-5
-EPOCHS = 15
+EPOCHS = 20
 batch_size = 10
 dropout = 0.2
 step_size = 5
