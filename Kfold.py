@@ -59,12 +59,12 @@ for fold in folds:
     valid_result_list.append(min(valid_result))
     version_list.append(version)
 
-    best_epoch = valid_result.index(max(valid_result)) + 1
+    best_epoch = valid_result.index(min(valid_result)) + 1
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
 
     for i in range(1, EPOCHS+1):
-        if i != best_epoch:
+        if i != best_epoch and os.path.exists(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt"):
             os.remove(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt")
 
     data_path = os.path.join(fold_path, fold, "sd_fulltest_raw.csv")
