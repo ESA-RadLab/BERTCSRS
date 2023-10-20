@@ -54,6 +54,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     valid_result = []
     Fbeta_result = []
+    recall_result = []
 
     current_model = model_options[model_name][0]
     hidden_layer = model_options[model_name][1]
@@ -316,6 +317,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         valid_result.append(avg_val_loss)
         Fbeta_result.append(val_fB)
+        recall_result.append(val_recall)
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
 
@@ -326,7 +328,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     torch.cuda.empty_cache()
 
     summary_log.close()
-    return valid_result, Fbeta_result, version
+    return valid_result, Fbeta_result, recall_result, version
 
 
 if __name__ == "__main__":

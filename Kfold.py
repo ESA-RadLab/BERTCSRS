@@ -53,17 +53,24 @@ for fold in folds:
     train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
-    valid_result, Fbeta_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
-                                                      pos_weight, gamma, step_size, freeze=True)
+    valid_result, Fbeta_result, recall_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size,
+                                                                     dropout, pos_weight, gamma, step_size, freeze=True)
 
     valid_result_list.append(min(valid_result))
     version_list.append(version)
 
-    best_epoch = valid_result.index(min(valid_result)) + 1
+    best_valid = valid_result.index(min(valid_result)) + 1
+    best_Fbeta = Fbeta_result.index(max(Fbeta_result)) + 1
+    if best_Fbeta == best_valid:
+        best_epoch = best_Fbeta
+    else:
+        best_recall_result = [recall_result[best_valid - 1], recall_result[best_Fbeta - 1]]
+        best_epoch = recall_result.index(max(best_recall_result)) + 1
+
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
 
-    for i in range(1, EPOCHS+1):
+    for i in range(1, EPOCHS + 1):
         if i != best_epoch and os.path.exists(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt"):
             os.remove(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt")
 
