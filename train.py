@@ -83,9 +83,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     recall = BinaryRecall(threshold=0.5)
     recall_1 = BinaryRecall(threshold=0.2)
     recall_3 = BinaryRecall(threshold=0.3)
-    fB = BinaryFBetaScore(beta=3., threshold=0.5)
-    fB_3 = BinaryFBetaScore(beta=3., threshold=0.3)
-    fB_1 = BinaryFBetaScore(beta=3., threshold=0.2)
+    fB = BinaryFBetaScore(beta=4., threshold=0.5)
+    fB_3 = BinaryFBetaScore(beta=4., threshold=0.3)
+    fB_1 = BinaryFBetaScore(beta=4., threshold=0.2)
 
     # num_training_steps = epochs * len(train_dataloader)
     lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
@@ -278,8 +278,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         fB_1.reset()
 
         avg_val_loss = total_loss_val / len(val_dataloader)
+        avg_train_loss = total_loss_train / len(train_dataloader)
 
-        train_log = f"EPOCH {epoch_num} TRAIN avloss: {(total_loss_train / len(train_dataloader)):.6f} Acc: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
+        train_log = f"EPOCH {epoch_num} TRAIN avloss: {avg_train_loss:.6f} Acc: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
         val_log = f"EPOCH {epoch_num} VALID avloss: {avg_val_loss:.6f} \n" \
                   f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
                   f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
@@ -292,8 +293,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         summary_log.write(f"{train_log}\t")
         summary_log.write(f"{val_log}\n")
 
-        valid_result.append(total_loss_val / len(val_dataloader))
-        Fbeta_result.append(val_fB)
+
 
         # output_val_data = pd.read_csv(val_path)
         # output_val_data['prediction'] = val_output
@@ -313,6 +313,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         else:
             lowest_val_loss = avg_val_loss
             counter = 0
+
+        valid_result.append(avg_val_loss)
+        Fbeta_result.append(val_fB)
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
 
