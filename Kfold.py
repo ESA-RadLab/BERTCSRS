@@ -17,7 +17,6 @@ folds.sort()
 filtered_folds = [fold for fold in folds if "fold" in fold]
 folds = filtered_folds
 
-
 LR = 2e-5
 EPOCHS = 15
 batch_size = 10
@@ -26,12 +25,12 @@ step_size = 5
 gamma = 1
 pos_weight = 10
 
-
 _, _, free_disk_space = shutil.disk_usage("/")
-free_disk_space = free_disk_space / (2**30)
+free_disk_space = free_disk_space / (2 ** 30)
 required_disk_space = len(folds) * EPOCHS * 0.45
 if free_disk_space < required_disk_space:
-    raise Exception(f"Not enough Disk Space! Required Disk Space: {required_disk_space} GB. Free Disk Space: {free_disk_space:.2f} GB")
+    raise Exception(
+        f"Not enough Disk Space! Required Disk Space: {required_disk_space} GB. Free Disk Space: {free_disk_space:.2f} GB")
 
 best_epoch_list = []
 best_recall_list = []
@@ -54,13 +53,13 @@ for fold in folds:
     train_path = os.path.join(fold_path, fold, "sd_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "sd_val_raw.csv")
 
-    valid_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
-                                        pos_weight, gamma, step_size, freeze=True)
+    valid_result, Fbeta_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size, dropout,
+                                                      pos_weight, gamma, step_size, freeze=True)
 
     valid_result_list.append(min(valid_result))
     version_list.append(version)
 
-    best_epoch = valid_result.index(min(valid_result)) + 1
+    best_epoch = Fbeta_result.index(max(Fbeta_result)) + 1
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
 

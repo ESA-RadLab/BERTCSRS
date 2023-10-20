@@ -53,6 +53,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
 
     valid_result = []
+    Fbeta_result = []
 
     current_model = model_options[model_name][0]
     hidden_layer = model_options[model_name][1]
@@ -82,9 +83,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     recall = BinaryRecall(threshold=0.5)
     recall_1 = BinaryRecall(threshold=0.2)
     recall_3 = BinaryRecall(threshold=0.3)
-    fB = BinaryFBetaScore(beta=2., threshold=0.5)
-    fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
-    fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
+    fB = BinaryFBetaScore(beta=3., threshold=0.5)
+    fB_3 = BinaryFBetaScore(beta=3., threshold=0.3)
+    fB_1 = BinaryFBetaScore(beta=3., threshold=0.2)
 
     # num_training_steps = epochs * len(train_dataloader)
     lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
@@ -112,6 +113,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     print("Training")
     length = len(train_dataloader)
     lowest_val_loss = math.inf
+    counter = 0
     for epoch_num in range(1, epochs + 1):
         # if epoch_num > decayepoch:
         #     learning_rate = learning_rate * gamma
@@ -291,6 +293,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         summary_log.write(f"{val_log}\n")
 
         valid_result.append(total_loss_val / len(val_dataloader))
+        Fbeta_result.append(val_fB)
 
         # output_val_data = pd.read_csv(val_path)
         # output_val_data['prediction'] = val_output
@@ -302,8 +305,14 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         if (avg_val_loss - 0.1) > lowest_val_loss:
             print("Early stop")
             break
-        elif avg_val_loss < lowest_val_loss:
+        elif avg_val_loss - 0.1 > lowest_val_loss:
+            counter += 1
+            if counter == 2:
+                print("Early stop")
+                break
+        else:
             lowest_val_loss = avg_val_loss
+            counter = 0
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
 
@@ -314,7 +323,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     torch.cuda.empty_cache()
 
     summary_log.close()
-    return valid_result, version
+    return valid_result, Fbeta_result, version
 
 
 if __name__ == "__main__":
@@ -323,7 +332,7 @@ if __name__ == "__main__":
 
     LR = 2e-5
     EPOCHS = 15
-    batch_size = 5
+    batch_size = 15
 
-    train('biobert', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
+    train('minibert', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
 
