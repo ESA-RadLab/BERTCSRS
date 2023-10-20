@@ -306,7 +306,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         if (avg_val_loss - 0.1) > lowest_val_loss:
             print("Early stop")
             break
-        elif avg_val_loss - 0.1 > lowest_val_loss:
+        elif avg_val_loss > lowest_val_loss:
             counter += 1
             if counter == 2:
                 print("Early stop")
