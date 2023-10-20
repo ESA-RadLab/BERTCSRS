@@ -27,7 +27,7 @@ pos_weight = 10
 
 _, _, free_disk_space = shutil.disk_usage("/")
 free_disk_space = free_disk_space / (2 ** 30)
-required_disk_space = len(folds) * EPOCHS * 0.45
+required_disk_space = (len(folds) - 1) * 0.45 + EPOCHS * 0.45
 if free_disk_space < required_disk_space:
     raise Exception(
         f"Not enough Disk Space! Required Disk Space: {required_disk_space} GB. Free Disk Space: {free_disk_space:.2f} GB")
@@ -59,9 +59,13 @@ for fold in folds:
     valid_result_list.append(min(valid_result))
     version_list.append(version)
 
-    best_epoch = Fbeta_result.index(max(Fbeta_result)) + 1
+    best_epoch = valid_result.index(max(valid_result)) + 1
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
+
+    for i in range(1, EPOCHS+1):
+        if i != best_epoch:
+            os.remove(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt")
 
     data_path = os.path.join(fold_path, fold, "sd_fulltest_raw.csv")
 
