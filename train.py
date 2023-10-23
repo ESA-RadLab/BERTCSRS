@@ -303,6 +303,15 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print(train_log)
         print(val_log)
 
+        valid_result.append(avg_val_loss)
+        Fbeta_result.append(val_fB)
+        recall_result.append(val_recall)
+
+        model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
+
+        torch.save(model.state_dict(), model_path)
+        model.load_state_dict(torch.load(model_path))
+
         if (avg_val_loss - 0.1) > lowest_val_loss:
             print("Early stop")
             break
@@ -314,15 +323,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         else:
             lowest_val_loss = avg_val_loss
             counter = 0
-
-        valid_result.append(avg_val_loss)
-        Fbeta_result.append(val_fB)
-        recall_result.append(val_recall)
-
-        model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
-
-        torch.save(model.state_dict(), model_path)
-        model.load_state_dict(torch.load(model_path))
 
     del model, tokenizer
     torch.cuda.empty_cache()
