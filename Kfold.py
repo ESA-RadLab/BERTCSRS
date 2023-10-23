@@ -8,7 +8,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 # import zipfile
 
-bert = 'pubmed_fulltext'
+bert = 'pubmed_abstract'
 
 fold_path = "Kfolds/data/SD/with_titles"
 folds = os.listdir(fold_path)
@@ -59,13 +59,16 @@ for fold in folds:
     valid_result_list.append(min(valid_result))
     version_list.append(version)
 
-    best_valid = valid_result.index(min(valid_result)) + 1
-    best_Fbeta = Fbeta_result.index(max(Fbeta_result)) + 1
+    best_valid = valid_result.index(min(valid_result))
+    best_Fbeta = Fbeta_result.index(max(Fbeta_result))
     if best_Fbeta == best_valid:
-        best_epoch = best_Fbeta
+        best_epoch = best_Fbeta + 1
     else:
-        best_recall_result = [recall_result[best_valid - 1], recall_result[best_Fbeta - 1]]
-        best_epoch = recall_result.index(max(best_recall_result)) + 1
+        best_recall_result = [recall_result[best_valid], recall_result[best_Fbeta]]
+        if best_recall_result.index(max(best_recall_result)) == 0:
+            best_epoch = best_valid + 1
+        else:
+            best_epoch = best_Fbeta + 1
 
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
