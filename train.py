@@ -89,7 +89,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     fB_1 = BinaryFBetaScore(beta=4., threshold=0.2)
 
     # num_training_steps = epochs * len(train_dataloader)
-    lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
+    # lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
