@@ -99,7 +99,7 @@ for fold in folds:
             recall = float(recall_list[i])
             threshold = float(threshold_list[i])
             if precision > min_precision and precision >= best_precision:
-                if recall >= best_recall and threshold >= 0.1:
+                if recall >= best_recall and threshold >= 0.05:
                     best_recall = recall
                     best_precision = precision
                     best_threshold = threshold
