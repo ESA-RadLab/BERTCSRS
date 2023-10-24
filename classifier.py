@@ -105,8 +105,11 @@ class BertClassifierConv(nn.Module):
         super(BertClassifierConv, self).__init__()
         self.relu = nn.ReLU()
 
-        self.bert = BertModel.from_pretrained(model_type, output_attentions=True)
-        self.dropBert = nn.Dropout(dropout)
+        # self.bert = BertModel.from_pretrained(model_type, output_attentions=True)
+        # self.dropBert = nn.Dropout(dropout)
+        hidden = 250
+        self.convolution1 = nn.Conv1d(1, 10, 1)
+        self.pool1 = nn.AvgPool1d(hidden // 20, stride=hidden // 20)
 
         self.convolution3 = nn.Conv1d(1, 3, 5)
         conv_size3 = hidden - 5 + 1
@@ -130,7 +133,7 @@ class BertClassifierConv(nn.Module):
 
         self.flatten = nn.Flatten()
 
-        self.linear1 = nn.Linear(300, 25)
+        self.linear1 = nn.Linear(509, 25)
         self.dropout1 = nn.Dropout(dropout)
 
         self.linear3 = nn.Linear(25, 1)
@@ -139,33 +142,37 @@ class BertClassifierConv(nn.Module):
             self.activation = nn.Sigmoid()
         self.sigma = sigma
 
-    def forward(self, input_id, mask):
+    def forward(self, input_id, mask, text):
 
-        bert_outputs = self.bert(input_ids=input_id, attention_mask=mask)
-        pooled_output = bert_outputs['pooler_output']
-        pooled_output = self.dropBert(self.relu(pooled_output.unsqueeze(1)))
+        # bert_outputs = self.bert(input_ids=input_id, attention_mask=mask)
+        # pooled_output = bert_outputs['pooler_output']
+        # pooled_output = self.dropBert(self.relu(pooled_output.unsqueeze(1)))
 
-        conv_layer3 = self.convolution3(pooled_output)
+        conv_layer1 = self.convolution1(text)
+        pool_layer1 = self.pool1(self.relu(conv_layer1))
+        flat_layer1 = self.flatten(pool_layer1)
+
+        conv_layer3 = self.convolution3(text)
         pool_layer3 = self.pool3(self.relu(conv_layer3))
         flat_layer3 = self.flatten(pool_layer3)
 
-        conv_layer5 = self.convolution5(pooled_output)
+        conv_layer5 = self.convolution5(text)
         pool_layer5 = self.pool5(self.relu(conv_layer5))
         flat_layer5 = self.flatten(pool_layer5)
 
-        conv_layer7 = self.convolution7(pooled_output)
+        conv_layer7 = self.convolution7(text)
         pool_layer7 = self.pool7(self.relu(conv_layer7))
         flat_layer7 = self.flatten(pool_layer7)
 
-        conv_layer9 = self.convolution9(pooled_output)
+        conv_layer9 = self.convolution9(text)
         pool_layer9 = self.pool9(self.relu(conv_layer9))
         flat_layer9 = self.flatten(pool_layer9)
 
-        conv_layer11 = self.convolution11(pooled_output)
+        conv_layer11 = self.convolution11(text)
         pool_layer11 = self.pool11(self.relu(conv_layer11))
         flat_layer11 = self.flatten(pool_layer11)
 
-        concat_layer = torch.concat((flat_layer3, flat_layer5, flat_layer7, flat_layer9, flat_layer11), dim=1)
+        concat_layer = torch.concat((flat_layer1, flat_layer3, flat_layer5, flat_layer7, flat_layer9, flat_layer11), dim=1)
 
         hidden_layer1 = self.linear1(self.relu(concat_layer))
         hidden_layer1 = self.dropout1(self.relu(hidden_layer1))
@@ -174,9 +181,9 @@ class BertClassifierConv(nn.Module):
 
         if self.sigma:
             final_layer = self.activation(hidden_layer3)
-            return final_layer, bert_outputs
+            return final_layer
         else:
-            return hidden_layer3, bert_outputs
+            return hidden_layer3
 
     def set_sigma(self, sigma):
         self.sigma = sigma
