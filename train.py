@@ -326,12 +326,12 @@ def train(model_name, train_path0, train_path1, train_path2, val_path, learning_
         torch.save(model.state_dict(), model_path)
         model.load_state_dict(torch.load(model_path))
 
-        if (avg_val_loss - 0.1) > lowest_val_loss:
-            print("Early stop")
-            break
-        elif avg_val_loss > lowest_val_loss:
+        # if (avg_val_loss - 0.1) > lowest_val_loss:
+        #     print("Early stop")
+        #     break
+        if avg_val_loss > lowest_val_loss:
             counter += 1
-            if counter == 2:
+            if counter == 3:
                 print("Early stop")
                 break
         else:

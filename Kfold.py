@@ -8,7 +8,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 # import zipfile
 
-bert = 'roberta_pubmed'
+bert = 'pubmed_abstract'
 
 fold_path = "Kfolds/data/CNS/divided"
 folds = os.listdir(fold_path)
