@@ -348,11 +348,11 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
 
 if __name__ == "__main__":
-    train_path = os.path.join("data", "cns_balanced_new1.csv")
-    val_path = os.path.join("data", "cns_val_new1.csv")
+    train_path = "Kfolds/data/CNS/downsampled/fold_0/cns_balanced_raw.csv"
+    val_path = "Kfolds/data/CNS/downsampled/fold_0/cns_val_raw.csv"
 
     LR = 2e-5
-    EPOCHS = 10
+    EPOCHS = 30
     batch_size = 15
 
     train('pubmed_abstract', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
