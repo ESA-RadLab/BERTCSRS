@@ -29,7 +29,7 @@ model_options = {
 }
 
 
-def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout, pos_weight, gamma, step_size, freeze=False):
+def train(model_name, train_path0, train_path1, train_path2, val_path, learning_rate, epochs, batch_size, dropout, pos_weight):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -50,7 +50,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     #     os.makedirs('output')
 
     summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
-    summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
+    summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path0} \n \n")
 
     valid_result = []
     Fbeta_result = []
@@ -65,7 +65,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     print("Retrieving data")
     tokenizer = AutoTokenizer.from_pretrained(current_model)
-    train_dataloader = reader.load(train_path, tokenizer, batch_size)
+    train_dataloader0 = reader.load(train_path0, tokenizer, batch_size)
+    train_dataloader1 = reader.load(train_path1, tokenizer, batch_size)
+    train_dataloader2 = reader.load(train_path2, tokenizer, batch_size)
     val_dataloader = reader.load(val_path, tokenizer, batch_size)
 
     print("Building optimizer")
@@ -112,7 +114,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print("Using Cuda")
 
     print("Training")
-    length = len(train_dataloader)
+
     lowest_val_loss = math.inf
     counter = 0
     for epoch_num in range(1, epochs + 1):
@@ -131,7 +133,15 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         #     for param_group in optimizer.param_groups:
         #         param_group['lr'] = learning_rate
 
+        if (epoch_num - 1) % 3 == 0:
+            train_dataloader = train_dataloader0
+        elif (epoch_num + 1) % 3 == 0:
+            train_dataloader = train_dataloader1
+        else:
+            train_dataloader = train_dataloader2
+
         total_loss_train = 0
+        length = len(train_dataloader)
 
         time_begin = time.time()
         current_time = datetime.now()
@@ -332,12 +342,15 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
 
 if __name__ == "__main__":
-    train_path = os.path.join("data", "cns_balanced_new1.csv")
+    train_path0 = os.path.join("data", "cns_balanced_new1.csv")
+    train_path1 = os.path.join("data", "cns_balanced_new1.csv")
+    train_path2 = os.path.join("data", "cns_balanced_new1.csv")
+
     val_path = os.path.join("data", "cns_val_new1.csv")
 
     LR = 2e-5
     EPOCHS = 15
     batch_size = 15
 
-    train('minibert', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
+    train('minibert', train_path0, train_path1, train_path2, val_path, LR, EPOCHS, batch_size, 0.2, 10)
 
