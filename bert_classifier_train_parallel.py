@@ -191,8 +191,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             if i % 10 == 0:
                 print(log)
 
-            if i >= 5:  # debug
-                break
+            # if i >= 5:  # debug
+            #     break
 
         train_acc = acc.compute()
         acc.reset()
@@ -270,8 +270,8 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 sys.stdout.flush()
                 gc.collect()
 
-                if i >= 5:  # debug
-                    break
+                # if i >= 5:  # debug
+                #     break
 
         lr_schedule.step()
         # if epoch_num == step_size:
@@ -338,7 +338,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         torch.save(model.state_dict(), model_path)
         model.load_state_dict(torch.load(model_path))
 
-        torch.save(vocab, )
+        # torch.save(vocab, )
 
     del model, tokenizer
     torch.cuda.empty_cache()
@@ -352,8 +352,8 @@ if __name__ == "__main__":
     val_path = os.path.join("data", "cns_val_new1.csv")
 
     LR = 2e-5
-    EPOCHS = 1
-    batch_size = 8
+    EPOCHS = 10
+    batch_size = 15
 
     train('pubmed_abstract', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
 
