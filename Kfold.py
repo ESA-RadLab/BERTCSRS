@@ -10,7 +10,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 bert = 'pubmed_abstract'
 
-fold_path = "Kfolds/data/CNS/downsampled"
+fold_path = "Kfolds/data/CNS/divided"
 folds = os.listdir(fold_path)
 folds.sort()
 
