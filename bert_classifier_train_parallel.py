@@ -334,11 +334,12 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         print(val_log)
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
+        vocab_path = os.path.join(save_path, f"vocab_{version}_epoch_{epoch_num}.pt")
 
         torch.save(model.state_dict(), model_path)
         model.load_state_dict(torch.load(model_path))
 
-        # torch.save(vocab, )
+        torch.save(vocab, vocab_path)
 
     del model, tokenizer
     torch.cuda.empty_cache()

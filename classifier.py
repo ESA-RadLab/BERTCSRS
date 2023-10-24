@@ -123,12 +123,12 @@ class BertClassifierConv(nn.Module):
         conv_size7 = hidden - 10 + 1
         self.pool7 = nn.AvgPool1d(conv_size7 // 20, stride=conv_size7 // 20)
 
-        self.convolution9 = nn.Conv1d(1, 5, 15)
-        conv_size9 = hidden - 15 + 1
+        self.convolution9 = nn.Conv1d(1, 5, 20)
+        conv_size9 = hidden - 20 + 1
         self.pool9 = nn.AvgPool1d(conv_size9 // 20, stride=conv_size9 // 20)
 
-        self.convolution11 = nn.Conv1d(1, 5, 20)
-        conv_size11 = hidden - 20 + 1
+        self.convolution11 = nn.Conv1d(1, 5, 40)
+        conv_size11 = hidden - 40 + 1
         self.pool11 = nn.AvgPool1d(conv_size11 // 20, stride=conv_size11 // 20)
 
         self.flatten = nn.Flatten()
