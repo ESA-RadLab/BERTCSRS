@@ -14,6 +14,7 @@ from transformers import AutoTokenizer
 
 import reader
 from classifier import BertClassifier50 as Bert
+from classifier import RobertaClassifier50 as Roberta
 
 model_options = {
     "biobert": ["dmis-lab/biobert-v1.1", 768],
@@ -25,7 +26,8 @@ model_options = {
     "tinybert": ["prajjwal1/bert-tiny", 128],
     "minibert": ["prajjwal1/bert-mini", 256],
     "smallbert": ["prajjwal1/bert-small", 512],
-    "mediumbert": ["prajjwal1/bert-medium", 512]
+    "mediumbert": ["prajjwal1/bert-medium", 512],
+    "roberta_pubmed": ["raynardj/roberta-pubmed", 768]
 }
 
 
@@ -60,8 +62,10 @@ def train(model_name, train_path0, train_path1, train_path2, val_path, learning_
     hidden_layer = model_options[model_name][1]
 
     print(f"Get model {model_name}")
-    # torch.manual_seed(5223)
-    model = Bert(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
+    if model_name is "roberta_pubmed":
+        model = Roberta(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
+    else:
+        model = Bert(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
 
     print("Retrieving data")
     tokenizer = AutoTokenizer.from_pretrained(current_model)
@@ -203,7 +207,7 @@ def train(model_name, train_path0, train_path1, train_path2, val_path, learning_
             if i % 10 == 0:
                 print(log)
 
-            # if i >= 5:  # debug
+            # if i >= 2:  # debug
             #     break
 
         train_acc = acc.compute()
@@ -250,7 +254,7 @@ def train(model_name, train_path0, train_path1, train_path2, val_path, learning_
                 sys.stdout.flush()
                 gc.collect()
 
-                # if i >= 5:  # debug
+                # if i >= 2:  # debug
                 #     break
 
         # lr_schedule.step()
@@ -350,7 +354,7 @@ if __name__ == "__main__":
 
     LR = 2e-5
     EPOCHS = 15
-    batch_size = 15
+    batch_size = 5
 
-    train('minibert', train_path0, train_path1, train_path2, val_path, LR, EPOCHS, batch_size, 0.2, 10)
+    train('roberta_pubmed', train_path0, train_path1, train_path2, val_path, LR, EPOCHS, batch_size, 0.2, 10)
 
