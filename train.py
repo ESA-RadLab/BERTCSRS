@@ -62,7 +62,7 @@ def train(model_name, train_path0, train_path1, train_path2, val_path, learning_
     hidden_layer = model_options[model_name][1]
 
     print(f"Get model {model_name}")
-    if model_name is "roberta_pubmed":
+    if model_name == "roberta_pubmed":
         model = Roberta(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)
     else:
         model = Bert(hidden=hidden_layer, model_type=current_model, dropout=dropout, sigma=False)

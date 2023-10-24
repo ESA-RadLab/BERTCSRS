@@ -11,6 +11,7 @@ from transformers import AutoTokenizer
 
 import reader
 from classifier import BertClassifier50 as Bert
+from classifier import RobertaClassifier50 as Roberta
 from classifier_old import BertClassifierOld
 
 nltk.download('stopwords')
@@ -25,7 +26,8 @@ model_options = {
     "tinybert": ["prajjwal1/bert-tiny", 128],
     "minibert": ["prajjwal1/bert-mini", 256],
     "smallbert": ["prajjwal1/bert-small", 512],
-    "mediumbert": ["prajjwal1/bert-medium", 512]
+    "mediumbert": ["prajjwal1/bert-medium", 512],
+    "roberta_pubmed": ["raynardj/roberta-pubmed", 768]
 }
 
 
@@ -38,11 +40,13 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
 
     if old_model:
         model = BertClassifierOld(hidden=hidden_layer, model_type=current_model)
+    elif bert_name == "roberta_pubmed":
+        model = Roberta(hidden=hidden_layer, model_type=current_model)
     else:
         model = Bert(hidden=hidden_layer, model_type=current_model)
 
     model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
-    # model_path = "../models/Kfold/pubmed_abstract_29.08_11.24_epoch_7.pt"
+    # model_path = "../models/roberta_pubmed/24.10_14.20/roberta_pubmed_24.10_14.20_epoch_1.pt"
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -200,9 +204,9 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
 
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
-    modelname = "pubmed_abstract"
-    version = "29.08_11.24"
-    epoch = 7
+    modelname = "roberta_pubmed"
+    version = "24.10_14.20"
+    epoch = 1
 
     data_path = os.path.join("../data", "crowd_cns.csv")
     output_path = os.path.join("../data", "output_cns.csv")
