@@ -1,7 +1,17 @@
+import re
+
 import numpy as np
 import pandas as pd
 
 from torch.utils.data import Dataset, DataLoader
+
+
+htmlcleaner = re.compile('<.*?>')
+
+
+def cleanhtml(text):
+    cleantext = re.sub(htmlcleaner, '', text)
+    return cleantext
 
 
 class Reader(Dataset):
@@ -29,7 +39,7 @@ class Reader(Dataset):
         else:
             self.labels = [labels_dict[label.strip()] for label in df['decision']]
 
-        self.texts = [tokenizer(text, padding='max_length', max_length=512, truncation=True,
+        self.texts = [tokenizer(cleanhtml(text), padding='max_length', max_length=512, truncation=True,
                                 return_tensors="pt") for text in df['titleabstract']]
 
     def classes(self):

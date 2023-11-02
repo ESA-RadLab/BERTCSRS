@@ -2,18 +2,13 @@ import gc
 import os
 import sys
 
-import nltk
 import pandas as pd
 import torch
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryFBetaScore, \
-    BinaryPrecisionRecallCurve
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifier25 as Bert
+from classifier import BertClassifier50 as Bert
 from classifier_old import BertClassifierOld
-
-nltk.download('stopwords')
 
 model_options = {
     "biobert": ["dmis-lab/biobert-v1.1", 768],

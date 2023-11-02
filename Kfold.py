@@ -10,7 +10,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 bert = 'pubmed_abstract'
 
-fold_path = "Kfolds/data/CNS/divided"
+fold_path = "Kfolds/data/CNS/downsampled"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -19,7 +19,7 @@ folds = filtered_folds
 
 LR = 2e-5
 EPOCHS = 20
-batch_size = 10
+batch_size = 10  # debug
 dropout = 0.2
 step_size = 5
 gamma = 1
@@ -50,13 +50,11 @@ attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
-    train_path0 = os.path.join(fold_path, fold, "cns_balanced_raw0.csv")
-    train_path1 = os.path.join(fold_path, fold, "cns_balanced_raw1.csv")
-    train_path2 = os.path.join(fold_path, fold, "cns_balanced_raw2.csv")
+    train_path = os.path.join(fold_path, fold, "cns_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, "cns_val_raw.csv")
 
-    valid_result, Fbeta_result, recall_result, version = train.train(bert, train_path0, train_path1, train_path2, val_path, LR, EPOCHS, batch_size,
-                                                                     dropout, pos_weight)
+    valid_result, Fbeta_result, recall_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size,
+                                                                     dropout, pos_weight, gamma, step_size, freeze=True)
 
     valid_result_list.append(min(valid_result))
     version_list.append(version)
