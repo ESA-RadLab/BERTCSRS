@@ -36,8 +36,8 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
     else:
         model = Bert(hidden=N_hidden_layer, model_type=current_model)
 
-    # model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
-    model_path = "models/Kfold/pubmed_abstract_29.08_11.24_epoch_7.pt"
+    model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
+    # model_path = "models/Kfold/Final/CNS_pubmed_abstract_02.11_11.59_epoch_9.pt"
 
     state_dict = torch.load(model_path)
     model.load_state_dict(state_dict, strict=False)
@@ -82,14 +82,14 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
 
 if __name__ == "__main__":
     modelname = "pubmed_abstract"
-    version = "29.08_11.24"
-    epoch = 7
+    version = "02.11_11.59"
+    epoch = 9
 
     data_path = os.path.join("data", "FULL_cns.csv")
     output_folder_path = os.path.join("data", "FULL")
     # model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
-    batch_size = 8
+    batch_size = 10
 
     test(modelname, version, epoch, data_path, output_folder_path, batch_size)
     # test(bert_name, model_path, data_path, batch_size, True)
