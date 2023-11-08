@@ -82,14 +82,14 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
 
 if __name__ == "__main__":
     modelname = "pubmed_abstract"
-    version = "02.11_11.59"
-    epoch = 9
+    version = "08.11_10.32"
+    epoch = 6
 
-    data_path = os.path.join("data", "FULL_cns.csv")
-    output_folder_path = os.path.join("data", "FULL")
+    data_path = os.path.join("data", "FULL_sd.csv")
+    output_folder = os.path.join("data", "FULL", "SD")
     # model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
     batch_size = 10
 
-    test(modelname, version, epoch, data_path, output_folder_path, batch_size)
+    test(modelname, version, epoch, data_path, output_folder, batch_size)
     # test(bert_name, model_path, data_path, batch_size, True)
