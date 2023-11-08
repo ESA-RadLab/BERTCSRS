@@ -7,7 +7,7 @@ import torch
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifier50 as Bert
+from classifier import BertClassifier25 as Bert
 from classifier_old import BertClassifierOld
 
 model_options = {
