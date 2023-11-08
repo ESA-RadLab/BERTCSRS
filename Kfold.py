@@ -9,8 +9,8 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 # import zipfile
 
 bert = 'pubmed_abstract'
-dataset = "sd"
-fold_path = "Kfolds/data/SD/with_titles"
+dataset = "cns"
+fold_path = "Kfolds/data/CNS/with_titles"
 folds = os.listdir(fold_path)
 folds.sort()
 
