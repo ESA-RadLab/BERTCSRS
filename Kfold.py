@@ -9,8 +9,8 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 # import zipfile
 
 bert = 'pubmed_abstract'
-
-fold_path = "Kfolds/data/CNS/downsampled"
+dataset = "sd"
+fold_path = "Kfolds/data/SD/with_titles"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -50,11 +50,18 @@ attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
-    train_path = os.path.join(fold_path, fold, "cns_balanced_raw.csv")
-    val_path = os.path.join(fold_path, fold, "cns_val_raw.csv")
+    train_path = os.path.join(fold_path, fold, f"{dataset.lower()}_balanced_raw.csv")
+    val_path = os.path.join(fold_path, fold, f"{dataset.lower()}_val_raw.csv")
 
     valid_result, Fbeta_result, recall_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size,
                                                                      dropout, pos_weight, gamma, step_size, freeze=True)
+
+    summary_path = os.path.join("models", bert, version, "#summary.txt")
+
+    summary_file = open(summary_path, 'r')
+    summary_content = summary_file.read()
+    print("\nSUMMARY:\n" + summary_content)
+    summary_file.close()
 
     valid_result_list.append(min(valid_result))
     version_list.append(version)
@@ -77,11 +84,11 @@ for fold in folds:
         if i != best_epoch and os.path.exists(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt"):
             os.remove(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt")
 
-    data_path = os.path.join(fold_path, fold, "cns_fulltest_raw.csv")
+    data_path = os.path.join(fold_path, fold, f"{dataset.lower()}_fulltest_raw.csv")
 
     test_batch_size = 8
 
-    output_path = f"Kfolds/output/CNS/{attempt}/{fold}"
+    output_path = f"Kfolds/output/{dataset.upper()}/{attempt}/{fold}"
 
     recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, output_path,
                                                                       test_batch_size)
@@ -121,12 +128,7 @@ for fold in folds:
     fp_list.append(false_pos)
     fn_list.append(false_neg)
 
-    summary_path = os.path.join("models", bert, version, "#summary.txt")
 
-    summary_file = open(summary_path, 'r')
-    summary_content = summary_file.read()
-    print("\nSUMMARY:\n" + summary_content)
-    summary_file.close()
 
     # break  # debug
 
@@ -139,11 +141,11 @@ Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": b
                               "Best Threshold": best_threshold_list, "False Neg(0.5)": fn_list,
                               "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
 
-if os.path.exists("Kfolds/Kfold_results_CNS.xlsx"):
-    with pd.ExcelWriter("Kfolds/Kfold_results_CNS.xlsx", mode='a', if_sheet_exists='new') as writer:
+if os.path.exists(f"Kfolds/Kfold_results_{dataset.upper()}.xlsx"):
+    with pd.ExcelWriter(f"Kfolds/Kfold_results_{dataset.upper()}.xlsx", mode='a', if_sheet_exists='new') as writer:
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
-    Kfold_results.to_excel("Kfolds/Kfold_results_CNS.xlsx", sheet_name=bert)
+    Kfold_results.to_excel(f"Kfolds/Kfold_results_{dataset.upper()}.xlsx", sheet_name=bert)
 
 best_fold = valid_result_list.index(min(valid_result_list))
 print(f"\nBest fold: {best_fold}\n")
