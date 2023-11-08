@@ -3,12 +3,12 @@ import os
 import sys
 import pandas as pd
 import torch
-from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecall, BinaryPrecision, BinaryFBetaScore, \
+from torchmetrics.classification import BinaryAccuracy, BinaryRecall, BinaryPrecision, BinaryFBetaScore, \
     BinaryPrecisionRecallCurve
 from transformers import AutoTokenizer
 
 import reader
-from classifier import BertClassifier50 as Bert
+from classifier import BertClassifier25 as Bert
 from classifier import RobertaClassifier50 as Roberta
 from classifier_old import BertClassifierOld
 
@@ -202,11 +202,11 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
 # wss95(true_vals, all_logits)
 if __name__ == "__main__":
     modelname = "pubmed_abstract"
-    version = "24.10_14.20"
-    epoch = 1
+    version = "02.11_11.59"
+    epoch = 9
 
-    data_path = os.path.join("../data", "crowd_cns.csv")
-    output_path = os.path.join("../data", "output_cns.csv")
+    data_path = "../Kfolds/data/CNS/downsampled/fold_0/cns_test_raw.csv"
+    output_path = os.path.join("../data", "final_evaluation")
     # model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
     batch_size = 10
