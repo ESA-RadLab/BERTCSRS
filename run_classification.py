@@ -85,7 +85,7 @@ if __name__ == "__main__":
     version = "08.11_14.15"
     epoch = 6
 
-    data_path = os.path.join("data", "FULL_cns.csv")
+    data_path = os.path.join("data", "all_ref_cns.csv")
     output_folder = os.path.join("data", "FULL", "CNS")
     # model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
 
