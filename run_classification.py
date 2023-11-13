@@ -36,7 +36,9 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
     else:
         model = Bert(hidden=N_hidden_layer, model_type=current_model)
 
-    model_path = f"models/{bert_name}/{version}/{bert_name}_{version}_epoch_{epoch}.pt"
+    model_name = f"{bert_name}_{version}_epoch_{epoch}.pt"
+    print(f"Get model {model_name}")
+    model_path = f"models/{bert_name}/{version}/{model_name}"
     # model_path = "models/Kfold/Final/CNS_pubmed_abstract_02.11_11.59_epoch_9.pt"
 
     state_dict = torch.load(model_path)
@@ -47,6 +49,8 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
     model.eval()
 
     tokenizer = AutoTokenizer.from_pretrained(current_model)
+
+    print("Retrieving data")
     test_dataloader = reader.load_run(data_path, tokenizer, batch_size, shuffle=False)
 
     torch.cuda.empty_cache()
@@ -54,6 +58,9 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
     full_output = []
 
     i = 0
+    length = len(test_dataloader)
+
+    print("Start classification")
     for test_input in test_dataloader:
         i += 1
 
@@ -70,7 +77,7 @@ def test(bert_name, version, epoch, data_path, output_path, batch_size, old_mode
 
         # if i >= 5:  # debug
         #     break
-        print(f"Batch: {i}")
+        print(f"Batch: {i}/{length}")
 
     if not os.path.exists(output_path):
         os.makedirs(output_path)
