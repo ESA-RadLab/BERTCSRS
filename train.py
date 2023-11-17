@@ -9,7 +9,7 @@ from math import floor
 import torch
 from torch import nn
 from torch.optim import RAdam
-from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryFBetaScore
+from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryFBetaScore, BinaryAUROC
 from transformers import AutoTokenizer
 
 import reader
@@ -54,6 +54,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
     valid_result = []
     Fbeta_result = []
+    auroc_result = []
     recall_result = []
 
     current_model = model_options[model_name][0]
@@ -86,6 +87,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     fB = BinaryFBetaScore(beta=4., threshold=0.5)
     fB_3 = BinaryFBetaScore(beta=4., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=4., threshold=0.2)
+    auroc = BinaryAUROC(thresholds=100)
 
     # num_training_steps = epochs * len(train_dataloader)
     # lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
@@ -108,6 +110,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         fB = fB.cuda()
         fB_3 = fB_3.cuda()
         fB_1 = fB_1.cuda()
+        auroc = auroc.cuda()
         print("Using Cuda")
 
     print("Training")
@@ -235,6 +238,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 fB(output, val_label)
                 fB_3(output, val_label)
                 fB_1(output, val_label)
+                auroc(output, val_label)
 
                 sys.stdout.flush()
                 gc.collect()
@@ -277,11 +281,13 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         val_fB1 = fB_1.compute()
         fB_1.reset()
 
+        val_auroc = auroc.compute()
+
         avg_val_loss = total_loss_val / len(val_dataloader)
         avg_train_loss = total_loss_train / len(train_dataloader)
 
         train_log = f"EPOCH {epoch_num} TRAIN avloss: {avg_train_loss:.6f} Acc: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
-        val_log = f"EPOCH {epoch_num} VALID avloss: {avg_val_loss:.6f} \n" \
+        val_log = f"EPOCH {epoch_num} VALID avloss: {avg_val_loss:.6f} val_auroc: {val_auroc}\n" \
                   f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
                   f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
                   f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n"
@@ -304,6 +310,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         valid_result.append(avg_val_loss)
         Fbeta_result.append(val_fB)
+        auroc_result.append(val_auroc)
         recall_result.append(val_recall)
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")
@@ -327,7 +334,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     torch.cuda.empty_cache()
 
     summary_log.close()
-    return valid_result, Fbeta_result, recall_result, version
+    return valid_result, Fbeta_result, recall_result, auroc_result, version
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ from evaluation import evaluate_output, evaluate_classifier, compare_output
 
 bert = 'pubmed_abstract'
 dataset = "cns"
-fold_path = "Kfolds/data/CNS/with_titles"
+fold_path = "Kfolds/data/CNS/Final"
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -53,7 +53,7 @@ for fold in folds:
     train_path = os.path.join(fold_path, fold, f"{dataset.lower()}_balanced_raw.csv")
     val_path = os.path.join(fold_path, fold, f"{dataset.lower()}_val_raw.csv")
 
-    valid_result, Fbeta_result, recall_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size,
+    valid_result, Fbeta_result, recall_result, auroc_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size,
                                                                      dropout, pos_weight, gamma, step_size, freeze=True)
 
     summary_path = os.path.join("models", bert, version, "#summary.txt")
@@ -67,15 +67,15 @@ for fold in folds:
     version_list.append(version)
 
     best_valid = valid_result.index(min(valid_result))
-    best_Fbeta = Fbeta_result.index(max(Fbeta_result))
-    if best_Fbeta == best_valid:
-        best_epoch = best_Fbeta + 1
+    best_Auroc = auroc_result.index(max(auroc_result))
+    if best_Auroc == best_valid:
+        best_epoch = best_Auroc + 1
     else:
-        best_recall_result = [recall_result[best_valid], recall_result[best_Fbeta]]
+        best_recall_result = [recall_result[best_valid], recall_result[best_Auroc]]
         if best_recall_result.index(max(best_recall_result)) == 0:
             best_epoch = best_valid + 1
         else:
-            best_epoch = best_Fbeta + 1
+            best_epoch = best_Auroc + 1
 
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
@@ -84,7 +84,7 @@ for fold in folds:
         if i != best_epoch and os.path.exists(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt"):
             os.remove(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt")
 
-    data_path = os.path.join(fold_path, fold, f"{dataset.lower()}_fulltest_raw.csv")
+    data_path = os.path.join(fold_path, fold, f"{dataset.lower()}_test_raw.csv")
 
     test_batch_size = 8
 
