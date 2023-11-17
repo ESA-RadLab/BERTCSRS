@@ -217,6 +217,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
                 i += 1
+                val_label_int = val_label.to(device)
                 val_label = val_label.float().unsqueeze(-1).to(device)
                 mask = val_input['attention_mask'].to(device)
                 input_id = val_input['input_ids'].squeeze(1).to(device)
@@ -238,7 +239,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 fB(output, val_label)
                 fB_3(output, val_label)
                 fB_1(output, val_label)
-                auroc(output, val_label)
+                auroc(output, val_label_int)
 
                 sys.stdout.flush()
                 gc.collect()
