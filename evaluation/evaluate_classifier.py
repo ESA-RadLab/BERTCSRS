@@ -158,7 +158,7 @@ if __name__ == "__main__":
     data_path = "Kfolds/data/CNS/Final/fold_2/cns_val_raw.csv"
 
     model_path = f"models/{modelname}/{version}/{modelname}_{version}_epoch_{epoch}.pt"
-    output_path = os.path.join(data_path, "output")
+    output_path = "Kfolds/output/CNS/20.11_09.55/fold_2"
 
     batch_size = 10
 
