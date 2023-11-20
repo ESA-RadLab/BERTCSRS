@@ -24,7 +24,7 @@ model_options = {
 }
 
 
-def test(bert_name, version, epoch, data_path, output_path, model_path, batch_size):
+def test(bert_name, data_path, output_path, model_path, batch_size):
     current_model = model_options[bert_name][0]
     hidden_layer = model_options[bert_name][1]
 
@@ -135,12 +135,14 @@ def test(bert_name, version, epoch, data_path, output_path, model_path, batch_si
     test_fB1 = fB_1.compute()
     fB_1.reset()
 
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
+    output_folder = os.path.join(output_path.split("/")[:-1])
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     output_data = pd.read_csv(data_path)
     output_data['prediction'] = full_output
-    output_data.to_csv(os.path.join(output_path, f"{bert_name}_{version}_epoch{epoch}_val.csv"), index=False, lineterminator="\r\n")
+    output_data.to_csv(os.path.join(output_path), index=False, lineterminator="\r\n")
 
     print(
         f"recall:{test_recall:.4f} precision:{test_precision:.4f} fBeta:{test_fB:.4f} acc:{test_acc:.4f} recall3:{test_recall3:.4f} "
