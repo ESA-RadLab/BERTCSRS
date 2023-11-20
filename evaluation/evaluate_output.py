@@ -6,7 +6,8 @@ from torchmetrics.classification import BinaryAccuracy, BinaryAUROC, BinaryRecal
     BinaryPrecisionRecallCurve
 
 
-def evaluate(bert, version, epoch, data_path, val_test=""):
+
+def evaluate(data_path):
     acc = BinaryAccuracy(threshold=0.5)
     acc_3 = BinaryAccuracy(threshold=0.3)
     acc_1 = BinaryAccuracy(threshold=0.2)
@@ -21,13 +22,13 @@ def evaluate(bert, version, epoch, data_path, val_test=""):
     fB_3 = BinaryFBetaScore(beta=2., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=2., threshold=0.2)
     PRcurve = BinaryPrecisionRecallCurve()
+    #
+    # if len(val_test) > 0:
+    #     val_test = "_" + val_test
 
-    if len(val_test) > 0:
-        val_test = "_" + val_test
+    # output_data_path = os.path.join(data_path, f"{bert}_{version}_epoch{epoch}{val_test}.csv")
 
-    output_data_path = os.path.join(data_path, f"{bert}_{version}_epoch{epoch}{val_test}.csv")
-
-    df_output = pd.read_csv(output_data_path)
+    df_output = pd.read_csv(data_path)
 
     output = tensor(df_output['prediction'])
 
@@ -72,16 +73,17 @@ def evaluate(bert, version, epoch, data_path, val_test=""):
 
     print(f"PRcurve:\nprecision : {precision_list} \nrecall    : {recall_list} \nthresholds: {threshold_list}")
 
-    return precision_list, recall_list, threshold_list, PRcurve
+    return precision_list, recall_list, threshold_list, PRcurve, auroc_value
 
 
 if __name__ == "__main__":
-    bert = "pubmed_abstract"
-    version = "08.11_10.32"
-    epoch = 6
-    data_folder = "../Kfolds/output/SD/08.11_10.16/fold_1"
+    # bert = "pubmed_abstract"
+    # version = "08.11_10.32"
+    # epoch = 6
+    # data_folder = f"../Kfolds/output/SD/08.11_10.16/fold_1/{bert}_{version}_epoch{epoch}.csv"
+    data_path = "../Kfolds/output/CNS/20.11_09.55/fold_2/pubmed_abstract_20.11_10.34_epoch15.csv"
 
-    precision_list, recall_list, threshold_list, PRcurve = evaluate(bert, version, epoch, data_folder, val_test="val")
+    precision_list, recall_list, threshold_list, PRcurve, auroc = evaluate(data_path)
 
     best_threshold = 0.5
     best_precision = 0
