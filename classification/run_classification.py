@@ -82,8 +82,8 @@ if __name__ == "__main__":
     epoch = 15
     batch_size = 10
 
-    data_path = os.path.join("../data", "all_ref_SD.csv")
-    output_folder = os.path.join("../data", "FULL", "SD")
+    data_path = os.path.join("../data/processed_datasets", "all_ref_CNS.csv")
+    output_folder = os.path.join("../data", "FULL", "CNS")
     model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
     # model_path = "models/Kfold/Final/CNS_pubmed_abstract_02.11_11.59_epoch_9.pt"
 
