@@ -10,8 +10,9 @@ from data import split_fn_fp
 # import zipfile
 
 bert = 'pubmed_abstract'
-datalabel = "cns"
-fold_path = "Kfolds/data/CNS/Final"
+datalabel = "sd"
+fold_path = "Kfolds/data/SD/Final"
+
 folds = os.listdir(fold_path)
 folds.sort()
 
@@ -45,6 +46,7 @@ recall5_list = []
 precision5_list = []
 accuracy5_list = []
 Fbeta5_list = []
+auroc_list = []
 
 start_time = datetime.now()
 attempt = start_time.strftime("%d.%m_%H.%M")
@@ -98,7 +100,7 @@ for fold in folds:
     recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, model_path, output_path,
                                                                       test_batch_size)
 
-    precision_list, recall_list, threshold_list, _ = evaluate_output.evaluate(bert, version, best_epoch, output_path)
+    precision_list, recall_list, threshold_list, _, auroc = evaluate_output.evaluate(output_path)
 
     best_threshold = 0.5
     best_precision = 0
@@ -127,6 +129,7 @@ for fold in folds:
     precision5_list.append(precision5)
     accuracy5_list.append(accuracy5)
     Fbeta5_list.append(Fbeta5)
+    auroc_list.append(auroc)
 
     true_pos, true_neg, false_pos, false_neg = split_fn_fp.split(0.5, bert, version, best_epoch, output_path)
 
@@ -141,7 +144,7 @@ for fold in folds:
 
 Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": best_epoch_list, "Recall": recall5_list,
                               "Precision": precision5_list,
-                              "Accuracy": accuracy5_list, "Fbeta": Fbeta5_list, "Best Recall": best_recall_list,
+                              "Accuracy": accuracy5_list, "Fbeta": Fbeta5_list, "Auroc": auroc_list, "Best Recall": best_recall_list,
                               "Best Precision": best_precision_list,
                               "Best Threshold": best_threshold_list, "False Neg(0.5)": fn_list,
                               "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
