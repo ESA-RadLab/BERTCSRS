@@ -56,7 +56,7 @@ def run(bert_name, version, epoch, model_path, data_path, output_path, batch_siz
 
         output, attentions = model(input_id, mask)
 
-        full_output.append(output[:, 0].detach().cpu().numpy())
+        full_output.extend(output[:, 0].detach().cpu().numpy())
 
         torch.cuda.empty_cache()
         sys.stdout.flush()
@@ -76,7 +76,7 @@ def run(bert_name, version, epoch, model_path, data_path, output_path, batch_siz
                        lineterminator="\r\n")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # run as module: python -m classification.run_classification
     modelname = "pubmed_abstract"
     version = "20.11_10.34"
     epoch = 15

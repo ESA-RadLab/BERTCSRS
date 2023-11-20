@@ -85,7 +85,7 @@ def test(bert_name, version, epoch, data_path, output_path, model_path, batch_si
 
         output, attentions = model(input_id, mask)
 
-        full_output.append(output[:, 0].detach().cpu().numpy())
+        full_output.extend(output[:, 0].detach().cpu().numpy())
 
         acc(output, test_label)
         acc_3(output, test_label)
@@ -152,10 +152,10 @@ def test(bert_name, version, epoch, data_path, output_path, model_path, batch_si
 
 if __name__ == "__main__":
     modelname = "pubmed_abstract"
-    version = "02.11_11.59"
-    epoch = 9
+    version = "20.11_10.34"
+    epoch = 15
 
-    data_path = "../Kfolds/data/CNS/downsampled/fold_0/cns_test_raw.csv"
+    data_path = "../Kfolds/data/CNS/Final/fold_2/cns_val_raw.csv"
 
     model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
     output_path = os.path.join(model_path, "output")
