@@ -2,14 +2,14 @@ import pandas as pd
 from torch import tensor
 from torchmetrics.classification import BinaryAccuracy, BinaryRecall, BinaryPrecision, BinaryFBetaScore
 
-threshold = 0.122
+threshold = 0.4
 
 acc = BinaryAccuracy(threshold=threshold)
 precision = BinaryPrecision(threshold=threshold)
 recall = BinaryRecall(threshold=threshold)
 fB = BinaryFBetaScore(beta=2., threshold=threshold)
 
-df_output = pd.read_csv('../output/biobert_04.08_09.29_epoch7.csv')
+df_output = pd.read_csv('../Kfolds/output/SD/08.11_10.16/fold_1/pubmed_abstract_08.11_10.32_epoch6_val.csv')
 
 output = tensor(df_output['prediction'])
 

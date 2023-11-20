@@ -1,10 +1,7 @@
 import re
-
 import numpy as np
 import pandas as pd
-
 from torch.utils.data import Dataset, DataLoader
-
 
 htmlcleaner = re.compile('<.*?>')
 
@@ -18,7 +15,7 @@ class Reader(Dataset):
     """PyTorch Dataset class for our systematic review datasets.
     """
 
-    def __init__(self, df, tokenizer, old_model):
+    def __init__(self, df, tokenizer):
         """Creates the dataset
               Params:
                 df: dataset in a dataframe
@@ -29,15 +26,7 @@ class Reader(Dataset):
             'Included': 1,
         }
 
-        if old_model:
-            self.labels = []
-            label = [0, 0]
-            for decision in df['decision']:
-                label[labels_dict[decision]] = 1
-                self.labels.append(label)
-                label = [0, 0]
-        else:
-            self.labels = [labels_dict[label.strip()] for label in df['decision']]
+        self.labels = [labels_dict[label.strip()] for label in df['decision']]
 
         self.texts = [tokenizer(cleanhtml(text), padding='max_length', max_length=512, truncation=True,
                                 return_tensors="pt") for text in df['titleabstract']]
@@ -62,9 +51,9 @@ class Reader(Dataset):
         return batch_texts, batch_y
 
 
-def load(path, tokenizer, batch_size, old_model=False, shuffle=True):
+def load(path, tokenizer, batch_size, shuffle=True):
     data = pd.read_csv(path)
-    dataset = Reader(data, tokenizer, old_model)
+    dataset = Reader(data, tokenizer)
     dataloader = DataLoader(dataset, batch_size, shuffle=shuffle, num_workers=0)
     return dataloader
 

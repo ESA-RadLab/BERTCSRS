@@ -3,16 +3,15 @@ import math
 import os
 import sys
 import time
+import torch
+import reader
+
 from datetime import datetime
 from math import floor
-
-import torch
 from torch import nn
 from torch.optim import RAdam
 from torchmetrics.classification import BinaryAccuracy, BinaryPrecision, BinaryRecall, BinaryFBetaScore, BinaryAUROC
 from transformers import AutoTokenizer
-
-import reader
 from classifier import BertClassifier25 as Bert
 
 model_options = {
@@ -29,7 +28,7 @@ model_options = {
 }
 
 
-def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout, pos_weight, gamma, step_size, freeze=False):
+def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, dropout, pos_weight):
     """ Function to train the model.
         Params:
           - model: the model to be trained
@@ -46,8 +45,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         os.makedirs(save_path)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
-    # if not os.path.exists('output'):
-    #     os.makedirs('output')
 
     summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
@@ -69,8 +66,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     val_dataloader = reader.load(val_path, tokenizer, batch_size)
 
     print("Building optimizer")
-    # loss_weights = torch.Tensor([1., 17.])  # pick the weights
-    # criterion = nn.CrossEntropyLoss(weight=loss_weights)
     pos_weight = torch.tensor([pos_weight])
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     optimizer = RAdam(model.parameters(), lr=learning_rate)
@@ -88,9 +83,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     fB_3 = BinaryFBetaScore(beta=4., threshold=0.3)
     fB_1 = BinaryFBetaScore(beta=4., threshold=0.2)
     auroc = BinaryAUROC(thresholds=100)
-
-    # num_training_steps = epochs * len(train_dataloader)
-    # lr_schedule = lr_scheduler.StepLR(optimizer=optimizer, step_size=step_size, gamma=gamma)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -118,20 +110,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     lowest_val_loss = math.inf
     counter = 0
     for epoch_num in range(1, epochs + 1):
-        # if epoch_num > decayepoch:
-        #     learning_rate = learning_rate * gamma
-        #     optimizer
         model.train()
-        # model.set_sigma(False)
-
-        # if freeze and epoch_num > 7:
-        #     model.bert.requires_grad = False
-        #     print(f"frozen bert {not model.bert.requires_grad}")
-
-        # if freeze and epoch_num == 6:
-        #     learning_rate = learning_rate * 0.1
-        #     for param_group in optimizer.param_groups:
-        #         param_group['lr'] = learning_rate
 
         total_loss_train = 0
 
@@ -153,12 +132,9 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             optimizer.zero_grad()
 
             output, attentions = model(input_id, mask)
-            # output, .. = model(input_id, mask)
 
             batch_loss = criterion(output, train_label)
             total_loss_train += batch_loss.item()
-
-            # result = output.argmax(dim=1).unsqueeze(-1)
 
             acc(output, train_label)
             precision(output, train_label)
@@ -166,8 +142,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             fB(output, train_label)
 
             batch_loss.backward()
-
-            # if i % 2 == 0:
             optimizer.step()
 
             torch.cuda.empty_cache()
@@ -210,9 +184,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         total_loss_val = 0
         print("Validating")
         model.eval()
-        # model.set_sigma(True)
         i = 0
-        # val_output = []
 
         with torch.no_grad():
             for val_input, val_label in val_dataloader:
@@ -247,11 +219,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 # if i >= 2:  # debug
                 #     break
 
-        # lr_schedule.step()
-        # if epoch_num == step_size:
-        #     for g in optimizer.param_groups:
-        #         g['lr'] = learning_rate * gamma
-
         learning_rate = optimizer.param_groups[0]["lr"]
 
         val_acc = acc.compute()
@@ -283,12 +250,13 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         fB_1.reset()
 
         val_auroc = auroc.compute()
+        auroc.reset()
 
         avg_val_loss = total_loss_val / len(val_dataloader)
         avg_train_loss = total_loss_train / len(train_dataloader)
 
         train_log = f"EPOCH {epoch_num} TRAIN avloss: {avg_train_loss:.6f} Acc: {train_acc:.6f} Recall: {train_recall:.4f} Precision: {train_precision:.4f}"
-        val_log = f"EPOCH {epoch_num} VALID avloss: {avg_val_loss:.6f} val_auroc: {val_auroc}\n" \
+        val_log = f"EPOCH {epoch_num} VALID avloss: {avg_val_loss:.6f} val_auroc: {val_auroc:.4f}\n" \
                   f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
                   f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
                   f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n"
@@ -299,12 +267,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         summary_log.write(f"{train_log}\t")
         summary_log.write(f"{val_log}\n")
-
-
-
-        # output_val_data = pd.read_csv(val_path)
-        # output_val_data['prediction'] = val_output
-        # output_val_data.to_csv(os.path.join("output", f"{model_name}_{version}_epoch{epoch_num}_VAL.csv"))
 
         print(train_log)
         print(val_log)
@@ -319,9 +281,6 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         torch.save(model.state_dict(), model_path)
         model.load_state_dict(torch.load(model_path))
 
-        # if (avg_val_loss - 0.1) > lowest_val_loss:
-        #     print("Early stop")
-        #     break
         if avg_val_loss > lowest_val_loss:
             counter += 1
             if counter == 3:
@@ -346,5 +305,5 @@ if __name__ == "__main__":
     EPOCHS = 15
     batch_size = 15
 
-    train('minibert', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10, 1, 1)
+    train('minibert', train_path, val_path, LR, EPOCHS, batch_size, 0.2, 10)
 

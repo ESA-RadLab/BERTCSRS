@@ -4,12 +4,13 @@ from datetime import datetime
 
 import pandas as pd
 import train
-from evaluation import evaluate_output, evaluate_classifier, compare_output
+from evaluation import evaluate_output, evaluate_classifier
+from data import split_fn_fp
 
 # import zipfile
 
 bert = 'pubmed_abstract'
-dataset = "cns"
+datalabel = "cns"
 fold_path = "Kfolds/data/CNS/Final"
 folds = os.listdir(fold_path)
 folds.sort()
@@ -50,11 +51,11 @@ attempt = start_time.strftime("%d.%m_%H.%M")
 
 for fold in folds:
     print("\n" + fold)
-    train_path = os.path.join(fold_path, fold, f"{dataset.lower()}_balanced_raw.csv")
-    val_path = os.path.join(fold_path, fold, f"{dataset.lower()}_val_raw.csv")
+    train_path = os.path.join(fold_path, fold, f"{datalabel.lower()}_balanced_raw.csv")
+    val_path = os.path.join(fold_path, fold, f"{datalabel.lower()}_val_raw.csv")
 
     valid_result, Fbeta_result, recall_result, auroc_result, version = train.train(bert, train_path, val_path, LR, EPOCHS, batch_size,
-                                                                     dropout, pos_weight, gamma, step_size, freeze=True)
+                                                                     dropout, pos_weight)
 
     summary_path = os.path.join("models", bert, version, "#summary.txt")
 
@@ -72,10 +73,13 @@ for fold in folds:
         best_epoch = best_Auroc + 1
     else:
         best_recall_result = [recall_result[best_valid], recall_result[best_Auroc]]
-        if best_recall_result.index(max(best_recall_result)) == 0:
-            best_epoch = best_valid + 1
-        else:
+        if best_recall_result[0] == best_recall_result[1]:
             best_epoch = best_Auroc + 1
+        else:
+            if best_recall_result.index(max(best_recall_result)) == 0:
+                best_epoch = best_valid + 1
+            else:
+                best_epoch = best_Auroc + 1
 
     best_epoch_list.append(best_epoch)
     print(f"Best epoch: {best_epoch}")
@@ -84,16 +88,17 @@ for fold in folds:
         if i != best_epoch and os.path.exists(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt"):
             os.remove(f"models/{bert}/{version}/{bert}_{version}_epoch_{i}.pt")
 
-    data_path = os.path.join(fold_path, fold, f"{dataset.lower()}_test_raw.csv")
+    data_path = os.path.join(fold_path, fold, f"{datalabel.lower()}_test_raw.csv")
 
     test_batch_size = 8
 
-    output_path = f"Kfolds/output/{dataset.upper()}/{attempt}/{fold}"
+    output_path = f"Kfolds/output/{datalabel.upper()}/{attempt}/{fold}"
+    model_path = f"models/{bert}/{version}/{bert}_epoch_{best_epoch}.pt"
 
-    recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, output_path,
+    recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, version, best_epoch, data_path, model_path, output_path,
                                                                       test_batch_size)
 
-    precision_list, recall_list, threshold_list = evaluate_output.evaluate(bert, version, best_epoch, output_path)
+    precision_list, recall_list, threshold_list, _ = evaluate_output.evaluate(bert, version, best_epoch, output_path)
 
     best_threshold = 0.5
     best_precision = 0
@@ -123,7 +128,7 @@ for fold in folds:
     accuracy5_list.append(accuracy5)
     Fbeta5_list.append(Fbeta5)
 
-    true_pos, true_neg, false_pos, false_neg = compare_output.compare(0.5, bert, version, best_epoch, output_path)
+    true_pos, true_neg, false_pos, false_neg = split_fn_fp.split(0.5, bert, version, best_epoch, output_path)
 
     fp_list.append(false_pos)
     fn_list.append(false_neg)
@@ -141,11 +146,11 @@ Kfold_results = pd.DataFrame({"Fold": folds, "Version": version_list, "Epoch": b
                               "Best Threshold": best_threshold_list, "False Neg(0.5)": fn_list,
                               "False Pos(0.5)": fp_list, "Val loss": valid_result_list})
 
-if os.path.exists(f"Kfolds/Kfold_results_{dataset.upper()}.xlsx"):
-    with pd.ExcelWriter(f"Kfolds/Kfold_results_{dataset.upper()}.xlsx", mode='a', if_sheet_exists='new') as writer:
+if os.path.exists(f"Kfolds/Kfold_results_{datalabel.upper()}.xlsx"):
+    with pd.ExcelWriter(f"Kfolds/Kfold_results_{datalabel.upper()}.xlsx", mode='a', if_sheet_exists='new') as writer:
         Kfold_results.to_excel(writer, sheet_name=bert)
 else:
-    Kfold_results.to_excel(f"Kfolds/Kfold_results_{dataset.upper()}.xlsx", sheet_name=bert)
+    Kfold_results.to_excel(f"Kfolds/Kfold_results_{datalabel.upper()}.xlsx", sheet_name=bert)
 
 best_fold = valid_result_list.index(min(valid_result_list))
 print(f"\nBest fold: {best_fold}\n")
