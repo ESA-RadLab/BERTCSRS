@@ -78,8 +78,8 @@ def run(bert_name, version, epoch, model_path, data_path, output_path, batch_siz
 
 if __name__ == "__main__":
     modelname = "pubmed_abstract"
-    version = "08.11_10.32"
-    epoch = 6
+    version = "20.11_10.34"
+    epoch = 15
     batch_size = 10
 
     data_path = os.path.join("../data", "all_ref_SD.csv")
