@@ -87,4 +87,4 @@ if __name__ == "__main__":
     model_path = f"models/{modelname}/{version}/{modelname}_epoch_{epoch}.pt"
     # model_path = "models/Kfold/Final/CNS_pubmed_abstract_02.11_11.59_epoch_9.pt"
 
-    run(modelname, version, epoch, data_path, model_path, output_folder, batch_size)
+    run(modelname, version, epoch, model_path, data_path, output_folder, batch_size)
