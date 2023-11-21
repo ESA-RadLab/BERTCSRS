@@ -131,12 +131,10 @@ for fold in folds:
     Fbeta5_list.append(Fbeta5)
     auroc_list.append(auroc)
 
-    true_pos, true_neg, false_pos, false_neg = split_fn_fp.split(0.5, bert, version, best_epoch, output_path)
+    true_pos, true_neg, false_pos, false_neg = split_fn_fp.split(0.5, output_path)
 
     fp_list.append(false_pos)
     fn_list.append(false_neg)
-
-
 
     # break  # debug
 

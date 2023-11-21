@@ -21,14 +21,14 @@ model_options = {
 }
 
 
-def run(bert_name, version, epoch, model_path, data_path, output_path, batch_size):
+def run(bert_name, model_path, data_path, output_path, batch_size):
     current_model = model_options[bert_name][0]
     n_hidden_layer = model_options[bert_name][1]
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    model_name = f"{bert_name}_{version}_epoch_{epoch}"
+    model_name = model_path.split("/")[-1][:-3]
 
     print(f"Get model {model_name}")
     model = Bert(hidden=n_hidden_layer, model_type=current_model)
@@ -67,13 +67,14 @@ def run(bert_name, version, epoch, model_path, data_path, output_path, batch_siz
         # if i >= 5:  # debug
         #     break
 
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
+    output_folder = os.path.join(*output_path.split("/")[:-1])
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     output_data = pd.read_csv(data_path)
     output_data['prediction'] = full_output
-    output_data.to_csv(os.path.join(output_path, f"{bert_name}_{version}_epoch{epoch}.csv"), index=False,
-                       lineterminator="\r\n")
+    output_data.to_csv(output_path, index=False, lineterminator="\r\n")
 
 
 if __name__ == "__main__":  # run as module: python -m classification.run_classification
@@ -83,8 +84,9 @@ if __name__ == "__main__":  # run as module: python -m classification.run_classi
     batch_size = 10
 
     data_path = os.path.join("data/processed_datasets", "all_ref_CNS.csv")
-    output_folder = os.path.join("data", "FULL", "CNS")
+    output_path = os.path.join("data", "output", "FULL", "CNS", f"{modelname}_{version}_epoch{epoch}.csv")
+
     model_path = f"models/{modelname}/{version}/{modelname}_{version}_epoch_{epoch}.pt"
     # model_path = "models/Kfold/Final/CNS_pubmed_abstract_02.11_11.59_epoch_9.pt"
 
-    run(modelname, version, epoch, model_path, data_path, output_folder, batch_size)
+    run(modelname, model_path, data_path, output_path, batch_size)

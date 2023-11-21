@@ -225,28 +225,28 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         acc.reset()
         val_acc3 = acc_3.compute()
         acc_3.reset()
-        val_acc1 = acc_2.compute()
+        val_acc2 = acc_2.compute()
         acc_2.reset()
 
         val_precision = precision.compute()
         precision.reset()
         val_precision3 = precision_3.compute()
         precision_3.reset()
-        val_precision1 = precision_2.compute()
+        val_precision2 = precision_2.compute()
         precision_2.reset()
 
         val_recall = recall.compute()
         recall.reset()
-        val_recall1 = recall_2.compute()
-        recall_2.reset()
         val_recall3 = recall_3.compute()
         recall_3.reset()
+        val_recall2 = recall_2.compute()
+        recall_2.reset()
 
         val_fB = fB.compute()
         fB.reset()
         val_fB3 = fB_3.compute()
         fB_3.reset()
-        val_fB1 = fB_2.compute()
+        val_fB2 = fB_2.compute()
         fB_2.reset()
 
         val_auroc = auroc.compute()
@@ -259,7 +259,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
         val_log = f"EPOCH {epoch_num} VALID avloss: {avg_val_loss:.6f} val_auroc: {val_auroc:.4f}\n" \
                   f"Acc5: {val_acc:.6f} Recall5: {val_recall:.4f} Precision5: {val_precision:.4f} Fbeta5: {val_fB}\n" \
                   f"Acc3: {val_acc3:.6f} Recall3: {val_recall3:.4f} Precision3: {val_precision3:.4f} Fbeta3: {val_fB3}\n" \
-                  f"Acc2: {val_acc1:.6f} Recall2: {val_recall1:.4f} Precision2: {val_precision1:.4f} Fbeta2: {val_fB1}\n"
+                  f"Acc2: {val_acc2:.6f} Recall2: {val_recall2:.4f} Precision2: {val_precision2:.4f} Fbeta2: {val_fB2}\n"
 
         epoch_log.write(train_log + "\n")
         epoch_log.write(val_log)
