@@ -46,7 +46,7 @@ def test(bert_name, data_path, output_path, model_path, batch_size):
 
     acc = BinaryAccuracy(threshold=0.5)
     acc_3 = BinaryAccuracy(threshold=0.3)
-    acc_1 = BinaryAccuracy(threshold=0.2)
+    acc_2 = BinaryAccuracy(threshold=0.2)
     precision = BinaryPrecision(threshold=0.5)
     precision_3 = BinaryPrecision(threshold=0.3)
     precision_1 = BinaryPrecision(threshold=0.2)
@@ -61,7 +61,7 @@ def test(bert_name, data_path, output_path, model_path, batch_size):
     if use_cuda:
         acc = acc.cuda()
         acc_3 = acc_3.cuda()
-        acc_1 = acc_1.cuda()
+        acc_2 = acc_2.cuda()
         precision = precision.cuda()
         precision_3 = precision_3.cuda()
         precision_1 = precision_1.cuda()
@@ -89,7 +89,7 @@ def test(bert_name, data_path, output_path, model_path, batch_size):
 
         acc(output, test_label)
         acc_3(output, test_label)
-        acc_1(output, test_label)
+        acc_2(output, test_label)
         precision(output, test_label)
         precision_3(output, test_label)
         precision_1(output, test_label)
@@ -111,8 +111,8 @@ def test(bert_name, data_path, output_path, model_path, batch_size):
     acc.reset()
     test_acc3 = acc_3.compute()
     acc_3.reset()
-    test_acc1 = acc_1.compute()
-    acc_1.reset()
+    test_acc1 = acc_2.compute()
+    acc_2.reset()
 
     test_precision = precision.compute()
     precision.reset()
@@ -135,7 +135,7 @@ def test(bert_name, data_path, output_path, model_path, batch_size):
     test_fB1 = fB_1.compute()
     fB_1.reset()
 
-    output_folder = os.path.join(output_path.split("/")[:-1])
+    output_folder = os.path.join(*output_path.split("/")[:-1])
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -160,8 +160,9 @@ if __name__ == "__main__":
     data_path = "Kfolds/data/CNS/Final/fold_2/cns_val_raw.csv"
 
     model_path = f"models/{modelname}/{version}/{modelname}_{version}_epoch_{epoch}.pt"
-    output_path = "Kfolds/output/CNS/20.11_09.55/fold_2"
+    model_path = "models/pubmed_abstract_08.11_10.32_epoch_6.pt"
+    output_path = "Kfolds/output/CNS/20.11_09.55/fold_2/pubmed_abstract_08.11_10.32_epoch_6.csv"
 
     batch_size = 10
 
-    test(modelname, version, epoch, data_path, output_path, model_path, batch_size)
+    test(modelname, data_path, output_path, model_path, batch_size)
