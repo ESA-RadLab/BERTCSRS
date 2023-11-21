@@ -95,7 +95,7 @@ for fold in folds:
     test_batch_size = 8
 
     output_path = f"Kfolds/output/{datalabel.upper()}/{attempt}/{fold}/{bert}_{version}_epoch{best_epoch}.csv"
-    model_path = f"models/{bert}/{version}/{bert}_epoch_{best_epoch}.pt"
+    model_path = f"models/{bert}/{version}/{bert}_{version}_epoch_{best_epoch}.pt"
 
     recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, data_path, output_path, model_path,
                                                                       test_batch_size)
