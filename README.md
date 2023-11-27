@@ -1,10 +1,18 @@
 # BERT for Complex Systematic Review Screening (BERTCSRS)
 
 ## Model architecture & training
-The model consists of a variable version of [BERT](https://huggingface.co/blog/bert-101) with a fully-connected classification layer on top, feeding into a single binary classification node. The BERT outputs and the classification layer have a ReLU activation layer and a dropout of 0.2 during training. The output node has a sigmoid activation function, which can be turned off for training, as I use BCEWithLogitsLoss(), which applies a sigmoid layer itself. BCEWithLogitsLoss() is implemented with a strong weight on positive samples, to emphasize recall. The optimizer used is RAdam() and I implemented early stopping with a timeout of 3 epochs. See [this](Project%20info.pptx) for general info on the project.
+The model consists of a variable version of [BERT](https://huggingface.co/blog/bert-101) with a fully-connected 
+classification layer on top, feeding into a single binary classification node. The BERT outputs and the classification 
+layer have a ReLU activation layer and a dropout of 0.2 during training. The output node has a sigmoid activation function, 
+which can be turned off for training, as I use BCEWithLogitsLoss(), which applies a sigmoid layer itself. BCEWithLogitsLoss() 
+is implemented with a strong weight on positive samples, to emphasize recall. The optimizer used is RAdam() and I 
+implemented early stopping with a timeout of 3 epochs. See [this](Project%20info.pptx) for general info on the project.
 
 ## Note on the remote machine
-To prevent losing all training progress when the ssh connection times out during a long-running process, I use the `screen` utility which will preserve any processes running in it when the connection drops. [Here is a link to some useful examples of how to use screen](https://www.tecmint.com/screen-command-examples-to-manage-linux-terminals/). A downside of using screen is that scroll doesn't work, so I don't use it when evaluating the model training.
+To prevent losing all training progress when the ssh connection times out during a long-running process, I use the `screen` 
+utility which will preserve any processes running in it when the connection drops. 
+[Here is a link to some useful examples of how to use screen](https://www.tecmint.com/screen-command-examples-to-manage-linux-terminals/). 
+A downside of using screen is that scroll doesn't work, so I don't use it when evaluating the model training.
 
 ## Workflows
 These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model
