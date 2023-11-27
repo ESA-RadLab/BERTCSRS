@@ -35,6 +35,6 @@ output_folder = "../data/output/FULL"
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-df_output.to_csv(f"{output_folder}/{datalabel.upper()}/{datalabel.upper()}_{full_model_name}_DECISION.csv")
-df_included.to_csv(f"{output_folder}/{datalabel.upper()}/{datalabel.upper()}_{full_model_name}_INCLUDED.csv")
-df_excluded.to_excel(f"{output_folder}/{datalabel.upper()}/{datalabel.upper()}_{full_model_name}_check.xlsx")
+df_output.to_csv(f"{output_folder}/{datalabel.upper()}/{datalabel.upper()}_{full_model_name}_TH{threshold}_DECISION.csv")
+df_included.to_csv(f"{output_folder}/{datalabel.upper()}/{datalabel.upper()}_{full_model_name}_TH{threshold}_INCLUDED.csv")
+df_excluded.to_excel(f"{output_folder}/{datalabel.upper()}/{datalabel.upper()}_{full_model_name}_TH{threshold}_check.xlsx")
