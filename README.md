@@ -17,10 +17,8 @@ A downside of using screen is that scroll doesn't work, so I don't use it when e
 ## Workflows
 These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model
 ### Simple training and testing
-1\. run [split_train_test.py](data/split_train_test.py) on raw training data
-
-2\. push `data/CNS` to git
-
+1\. run [split_train_test.py](data/split_train_test.py) on raw training data  
+2\. push `data/CNS` to git  
 3\. edit [train.py](train.py)'s \_\_main__ method and push to git  
 
 **\~VM\~** `cd BERTCSRS; conda activate snakes`  
@@ -56,9 +54,7 @@ Training logs and model state dict stay on the VM in `output/models/pubmed_abstr
 
 ### Classification
 1\. run [data_prep.py](data/data_prep.py) on raw source data  
-
 2\. push `data/processed_datasets/all_ref_CNS.csv` to git  
-
 3\. edit [run_classification.py](classification/run_classification.py)'s \_\_main__ method and push to git  
 
 **\~VM\~** `cd BERTCSRS; conda activate snakes; screen -S bert`  
