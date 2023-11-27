@@ -15,7 +15,7 @@ utility which will preserve any processes running in it when the connection drop
 A downside of using screen is that scroll doesn't work, so I don't use it when evaluating the model training.
 
 ## Workflows
-These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model
+These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model. Typically you will only need to change variables at the top of the file, or in the __main__ method.
 ### Simple training and testing
 1\. run [split_train_test.py](data/split_train_test.py) on raw training data  
 2\. push `data/CNS` to git  
