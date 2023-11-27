@@ -27,7 +27,7 @@ These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert mod
 5. `python train.py`
 6. `git add output/logs; git commit -m "logs pubmed_abstract CNS"; git push`  
 
-**\~Local\~**
+**\~Local\~**  
 7. pull from git  
 
 Model logs are in `output/logs/pubmed_abstract/{version datetime}`  
@@ -46,7 +46,7 @@ The state dict is too large for git, but can be retrieved using scp:
 5. `python Kfold.py`
 6. `git add Kfolds; git commit -m "output kfold CNS"; git push`  
 
-**\~Local\~**
+**\~Local\~**  
 7. pull from git  
 
 The result summary is in `Kfolds/Kfold_results_CNS.xlsx` in the tab 'pubmed_abstract'  
