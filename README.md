@@ -82,5 +82,5 @@ below the set threshold but above a second one, to evaluate the predictions betw
 13. run [classified_to_syrf.py](classification/classified_to_syrf.py) when you are satisfied with the results.  
     (This code is greatly adapted to the peculiarities of the source files used here, be aware of this when using it for a different file)
 
-The .csv file that can be uploaded to syrf is in `data/output`
+The .csv file that can be uploaded to SYRF is in `data/output`
 
