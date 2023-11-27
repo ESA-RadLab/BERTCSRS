@@ -22,7 +22,7 @@ These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert mod
 3. edit [train.py](train.py)'s \_\_main__ method and push to git  
 
 **\~VM\~**  
-`cd BERTCSRS; conda activate snakes`
+`cd BERTCSRS; conda activate snakes`  
 4. `git pull`
 5. `python train.py`
 6. `git add output/logs; git commit -m "logs pubmed_abstract CNS"; git push`  
@@ -41,7 +41,7 @@ The state dict is too large for git, but can be retrieved using scp:
 3. edit [Kfold.py](Kfold.py) and push to git  
 
 **\~VM\~**  
-`cd BERTCSRS; conda activate snakes; screen -S bert`
+`cd BERTCSRS; conda activate snakes; screen -S bert`  
 4. `git pull`
 5. `python Kfold.py`
 6. `git add Kfolds; git commit -m "output kfold CNS"; git push`  
@@ -60,7 +60,7 @@ Training logs and model state dict stay on the VM in `output/models/pubmed_abstr
 3. edit [run_classification.py](classification/run_classification.py)'s \_\_main__ method and push to git
 
 **\~VM\~**  
-`cd BERTCSRS; conda activate snakes; screen -S bert`
+`cd BERTCSRS; conda activate snakes; screen -S bert`  
 4. `git pull`
 5. `python -m classification.run_classification`
 6. `git add data/output; git commit -m "output classification CNS"; git push`
