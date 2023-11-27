@@ -1,13 +1,10 @@
 import os
 import shutil
-from datetime import datetime
-
 import pandas as pd
 import train
-from evaluation import evaluate_output, evaluate_classifier
+from datetime import datetime
+from evaluation import evaluate_output, test
 from data import split_fn_fp
-
-# import zipfile
 
 bert = 'pubmed_abstract'
 datalabel = "sd"
@@ -97,7 +94,7 @@ for fold in folds:
     output_path = f"Kfolds/output/{datalabel.upper()}/{attempt}/{fold}/{bert}_{version}_epoch{best_epoch}.csv"
     model_path = f"models/{bert}/{version}/{bert}_{version}_epoch_{best_epoch}.pt"
 
-    recall5, precision5, accuracy5, Fbeta5 = evaluate_classifier.test(bert, data_path, output_path, model_path,
+    recall5, precision5, accuracy5, Fbeta5 = test.test(bert, data_path, output_path, model_path,
                                                                       test_batch_size)
 
     precision_list, recall_list, threshold_list, _, auroc = evaluate_output.evaluate(output_path)
@@ -155,20 +152,3 @@ else:
 
 best_fold = valid_result_list.index(min(valid_result_list))
 print(f"\nBest fold: {best_fold}\n")
-
-# for i, version in enumerate(version_list):
-#     epoch = best_epoch_list[i]
-#     logsname = f"models/{bert}/{version}/logs"
-#     summaryname = f"models/{bert}/{version}/#summary.txt"
-#     fn_name = f"output/{bert}_{version}_epoch{epoch}_false_neg.csv"
-#     fp_name = f"output/{bert}_{version}_epoch{epoch}_false_pos.csv"
-#     outputname = f"output/{bert}_{version}_epoch{epoch}.csv"
-#     results_name = "Kfolds/Kfold_results_SD.xlsx"
-#
-#     with zipfile.ZipFile(f"{bert}_{version}_fold{i}.zip", mode="w") as zip:
-#         zip.write(logsname, os.path.basename(logsname))
-#         zip.write(summaryname, os.path.basename(summaryname))
-#         zip.write(outputname, os.path.basename(outputname))
-#         zip.write(fn_name, os.path.basename(fn_name))
-#         zip.write(fp_name, os.path.basename(fp_name))
-#         zip.write(results_name, os.path.basename(results_name))

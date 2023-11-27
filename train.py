@@ -39,14 +39,14 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
     """
     start_time = datetime.now()
     version = start_time.strftime("%d.%m_%H.%M")
-    save_path = os.path.join("models", model_name, version)
-    log_path = os.path.join(save_path, "logs")
+    save_path = os.path.join("output", "models", model_name, version)
+    log_path = os.path.join("output", "logs", model_name, version)
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
-    summary_log = open(os.path.join(save_path, "#summary.txt"), 'w')
+    summary_log = open(os.path.join(log_path, "#summary.txt"), 'w')
     summary_log.write(f"batch_size: {batch_size} \nepochs: {epochs} \ndata: {train_path} \n \n")
 
     valid_result = []
@@ -273,7 +273,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
 
         valid_result.append(avg_val_loss)
         Fbeta_result.append(val_fB)
-        auroc_result.append(val_auroc)
+        auroc_result.append(val_auroc.item())
         recall_result.append(val_recall)
 
         model_path = os.path.join(save_path, f"{model_name}_{version}_epoch_{epoch_num}.pt")

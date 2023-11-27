@@ -39,6 +39,7 @@ def split(threshold, data_path):
 
     return len(true_pos), len(true_neg), len(false_pos), len(false_neg)
 
+
 if __name__ == "__main__":
     threshold = 0.5
     data_path = "../Kfolds/output/CNS/fold_3"
@@ -46,4 +47,4 @@ if __name__ == "__main__":
     epoch = 6
     version = "29.08_13.04"
 
-    split(threshold, bert_name, version, epoch, data_path)
+    split(threshold, data_path)
