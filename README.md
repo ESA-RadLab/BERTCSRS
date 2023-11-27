@@ -18,7 +18,9 @@ A downside of using screen is that scroll doesn't work, so I don't use it when e
 These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model
 ### Simple training and testing
 1\. run [split_train_test.py](data/split_train_test.py) on raw training data
+
 2\. push `data/CNS` to git
+
 3\. edit [train.py](train.py)'s \_\_main__ method and push to git  
 
 **\~VM\~** `cd BERTCSRS; conda activate snakes`  
@@ -37,7 +39,7 @@ The state dict is too large for git, but can be retrieved using scp:
 ### Kfold analysis
 1\. run [split_kfold.py](data/split_kfold.py) on raw training data  
 2\. push `Kfolds/data/CNS/` to git (4 files per fold)  
-3\. edit [Kfold.py](Kfold.py) and push to git   
+3\. edit [Kfold.py](Kfold.py) and push to git  
 
 **\~VM\~** `cd BERTCSRS; conda activate snakes; screen -S bert`  
 4. `git pull`  
@@ -54,7 +56,9 @@ Training logs and model state dict stay on the VM in `output/models/pubmed_abstr
 
 ### Classification
 1\. run [data_prep.py](data/data_prep.py) on raw source data  
+
 2\. push `data/processed_datasets/all_ref_CNS.csv` to git  
+
 3\. edit [run_classification.py](classification/run_classification.py)'s \_\_main__ method and push to git  
 
 **\~VM\~** `cd BERTCSRS; conda activate snakes; screen -S bert`  
