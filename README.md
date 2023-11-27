@@ -29,9 +29,9 @@ These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert mod
 **\~Local\~**  
 7. pull from git  
 
-Model logs are in `output/logs/pubmed_abstract/{version datetime}`  
-Model state dict stays on the VM in `output/models/pubmed_abstract/{version datetime}`  
-The state dict is too large for git, but can be retrieved using scp  
+Model logs are in `output/logs/pubmed_abstract/{version datetime}`.  
+Model state dict stays on the VM in `output/models/pubmed_abstract/{version datetime}`.  
+The state dict is too large for git, but can be retrieved using scp.  
 
 ### Kfold analysis
 1\. run [split_kfold.py](data/split_kfold.py) on raw training data  
@@ -46,10 +46,10 @@ The state dict is too large for git, but can be retrieved using scp
 **\~Local\~**  
 7. pull from git  
 
-The result summary is in `Kfolds/Kfold_results_CNS.xlsx` in the tab 'pubmed_abstract'  
-Test outputs of the best epoch of every fold are in `Kfolds/output/CNS/{start datetime}`  
-The data used is in `Kfolds/data/CNS/`  
-Training logs and model state dict stay on the VM in `output/models/pubmed_abstract/{version datetime}`
+The result summary is in `Kfolds/Kfold_results_CNS.xlsx` in the tab 'pubmed_abstract'.  
+Test outputs of the best epoch of every fold are in `Kfolds/output/CNS/{start datetime}`.  
+The data used is in `Kfolds/data/CNS/`.  
+Training logs and model state dict stay on the VM in `output/models/pubmed_abstract/{version datetime}`.
 
 ### Classification
 1\. run [data_prep.py](data/data_prep.py) on raw source data  
@@ -75,6 +75,6 @@ using chosen threshold
 
 The output is in `data/output/FULL/CNS`, `CNS_..._DECISION.csv` contains all abstracts, the model prediction and decision, 
 `CNS_..._INCLUDED.csv` contains only the titleabstracts included by the model, and `CNS_..._CHECK.xlsx` can contain abstracts 
-below the set threshold but above a second one, to evaluate the predictions between these two thresholds
+below the set threshold but above a second one, to evaluate the predictions between these two thresholds.  
 The .csv file that can be uploaded to SYRF is in `data/output`
 
