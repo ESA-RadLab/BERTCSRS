@@ -31,8 +31,7 @@ These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert mod
 
 Model logs are in `output/logs/pubmed_abstract/{version datetime}`  
 Model state dict stays on the VM in `output/models/pubmed_abstract/{version datetime}`  
-The state dict is too large for git, but can be retrieved using scp:  
-`***REMOVED***`
+The state dict is too large for git, but can be retrieved using scp  
 
 ### Kfold analysis
 1\. run [split_kfold.py](data/split_kfold.py) on raw training data  
