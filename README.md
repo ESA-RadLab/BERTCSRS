@@ -8,7 +8,7 @@ which can be turned off for training, as I use BCEWithLogitsLoss(), which applie
 is implemented with a strong weight on positive samples, to emphasize recall. The optimizer used is RAdam() and I 
 implemented early stopping with a timeout of 3 epochs. See [this](Project%20info.pptx) for general info on the project.
 
-## Note on the remote machine
+## A note on usig a remote machine
 To prevent losing all training progress when the ssh connection times out during a long-running process, I use the `screen` 
 utility which will preserve any processes running in it when the connection drops. 
 [Here is a link to some useful examples of how to use screen](https://www.tecmint.com/screen-command-examples-to-manage-linux-terminals/). 
