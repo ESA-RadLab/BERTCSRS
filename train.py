@@ -131,7 +131,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
             model.zero_grad()
             optimizer.zero_grad()
 
-            output, attentions = model(input_id, mask)
+            output = model(input_id, mask)
 
             batch_loss = criterion(output, train_label)
             total_loss_train += batch_loss.item()
@@ -194,7 +194,7 @@ def train(model_name, train_path, val_path, learning_rate, epochs, batch_size, d
                 mask = val_input['attention_mask'].to(device)
                 input_id = val_input['input_ids'].squeeze(1).to(device)
 
-                output, attentions = model(input_id, mask)
+                output = model(input_id, mask)
 
                 val_loss = criterion(output, val_label)
                 total_loss_val += val_loss.item()

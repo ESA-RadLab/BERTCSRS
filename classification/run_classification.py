@@ -54,7 +54,7 @@ def run(bert_name, model_path, data_path, output_path, batch_size):
         mask = input['attention_mask'].to(device)
         input_id = input['input_ids'].squeeze(1).to(device)
 
-        output, attentions = model(input_id, mask)
+        output = model(input_id, mask)
 
         full_output.extend(output[:, 0].detach().cpu().numpy())
 

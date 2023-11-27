@@ -83,7 +83,7 @@ def test(bert_name, data_path, output_path, model_path, batch_size):
         mask = test_input['attention_mask'].to(device)
         input_id = test_input['input_ids'].squeeze(1).to(device)
 
-        output, attentions = model(input_id, mask)
+        output = model(input_id, mask)
 
         full_output.extend(output[:, 0].detach().cpu().numpy())
 

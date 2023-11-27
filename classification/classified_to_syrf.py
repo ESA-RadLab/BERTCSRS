@@ -1,10 +1,17 @@
 import numpy as np
 import pandas as pd
 
-data_path = "../data/output/FULL/CNS/CNS_INCLUDED2.csv"
-df_training = pd.read_csv("../data/sources/CNS_Screening_data.csv")
-df_results = pd.read_csv(data_path)
-df_original = pd.read_csv("../data/processed_datasets/all_ref_CNS_all_columns.csv")
+data_label = "CNS"
+full_model_name = "pubmed_abstract_20.11_10.34_epoch15"
+threshold = "0.23"
+
+included_data_path = f"../data/output/FULL/{data_label.upper()}/{data_label.upper()}_INCLUDED.csv"
+training_source_path = f"../data/sources/{data_label.upper()}_Screening_data.csv"
+all_column_data_path = f"../data/processed_datasets/all_ref_{data_label.upper()}_all_columns.csv"
+
+df_training = pd.read_csv(training_source_path)
+df_results = pd.read_csv(included_data_path)
+df_original = pd.read_csv(all_column_data_path)
 
 syrf_df = pd.merge(df_results, df_original, how="inner", left_on="titleabstract", right_on="titleabstract")
 syrf_df = syrf_df[~syrf_df["Title"].isin(df_training["Title"])]
@@ -28,4 +35,4 @@ syrf_df['Year'] = syrf_df['Year'].astype(dtype=pd.Int64Dtype())
 print(len(df_results))
 print(len(syrf_df))
 
-syrf_df.to_csv("../data/output/SYRF_CNS_pubmed_abstract_20.11_10.34_epoch15_TH_0.23.csv", index=False, sep=",")
+syrf_df.to_csv(f"../data/output/SYRF_{data_label}_{full_model_name}_TH_{threshold}.csv", index=False, sep=",")
