@@ -73,8 +73,8 @@ using chosen threshold
 13. run [classified_to_syrf.py](classification/classified_to_syrf.py) when you are satisfied with the results.   
         (This code is greatly adapted to the peculiarities of the source files used here, be aware of this when using it for a different file)
 
-The output is in `data/output/FULL/CNS`, `CNS_..._DECISION.csv` contains all abstracts, the model prediction and decision, 
-`CNS_..._INCLUDED.csv` contains only the titleabstracts included by the model, and `CNS_..._CHECK.xlsx` can contain abstracts 
+The output is in `data/output/FULL/CNS`, `CNS_..._DECISION.csv` contains all abstracts, the model prediction and decision,
+`CNS_..._INCLUDED.csv` contains only the titleabstracts included by the model, and `CNS_..._CHECK.xlsx` can contain abstracts
 below the set threshold but above a second one, to evaluate the predictions between these two thresholds.  
-The .csv file that can be uploaded to SYRF is in `data/output`
+The .csv file that can be uploaded to SYRF is in `data/output`.
 
