@@ -1,6 +1,6 @@
 import pandas as pd
 
-data_path = 'All references (Esa neuro).xlsx'
+data_path = 'sources/All references (Esa Sex diff).xlsx'
 
 # full = pd.read_csv(data_path)
 full = pd.read_excel(data_path)
@@ -10,6 +10,8 @@ print(len(full))
 full = full[~(full['Abstract'].isnull() & full['Title'].isnull())]
 full.drop_duplicates(["Title", "Abstract"], inplace=True)
 full = full.reset_index(drop=True)
+
+print(len(full))
 
 num_blanks = 0
 
@@ -30,11 +32,11 @@ for i, row in full.iterrows():
 
 full['titleabstract'] = titleabstract_list
 
+print(len(full))
+print(num_blanks)
+
 full.to_csv('processed_datasets/all_ref_SD_all_columns.csv')
 
 full = full['titleabstract']
-
-print(len(full))
-print(num_blanks)
 
 full.to_csv('processed_datasets/all_ref_SD.csv')
