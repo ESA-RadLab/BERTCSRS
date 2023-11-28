@@ -14,6 +14,8 @@ and the `..._Screening_data.csv` files contain the subset that was manually scre
 for training or classification, two files are created, one with all the columns, and one with just the titleabstracts (and ground-truth) 
 columns which are needed for training, because of the size of the files. The [data/output](data/output) directory contains the outputs 
 of the final classification. The Teams internal team folder contains a copy of all these files, as well as some additional output files.
+When creating the SYRF files the abstracts that are also present in the trainingset are filtered out, which is why these files are slightly 
+smaller than the INCLUDED files.
 ### Final output
 __CNS:__ threshold: 0.23, included papers: 11017/52190, (test) recall:0.96, precision: 0.56, Fbeta: 0.84, accuracy: 0.90, auroc:0.96  
 __SD:__ threshold: 0.4, included papers: 14232/58595, (test) recall:0.97, precision: 0.39, Fbeta: 0.75, accuracy: 0.85, auroc: 0.95  
