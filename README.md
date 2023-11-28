@@ -15,8 +15,8 @@ for training or classification, two files are created, one with all the columns,
 columns which are needed for training, because of the size of the files. The [data/output](data/output) directory contains the outputs 
 of the final classification. The Teams internal team folder contains a copy of all these files, as well as some additional output files.
 
-## A note on using a remote machine
-To prevent losing all training progress when the ssh connection times out during a long-running process, I use the `screen` 
+## A note on using the remote machine
+To prevent losing all training progress when the ssh connection times out during a long-running process, I use the Linux `screen` 
 utility which will preserve any processes running in it when the connection drops. 
 [Here is a link to some useful examples of how to use screen](https://www.tecmint.com/screen-command-examples-to-manage-linux-terminals/). 
 A downside of using screen is that scroll doesn't work, so I don't use it when evaluating the model training.
