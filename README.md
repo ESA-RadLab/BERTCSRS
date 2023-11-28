@@ -8,14 +8,14 @@ which can be turned off for training, as I use BCEWithLogitsLoss(), which applie
 is implemented with a strong weight on positive samples, to emphasize recall. The optimizer used is RAdam() and I 
 implemented early stopping with a timeout of 3 epochs. See [this](Project%20info.pptx) for general info on the project.
 
-## Note on the remote machine
+## A note on using a remote machine
 To prevent losing all training progress when the ssh connection times out during a long-running process, I use the `screen` 
 utility which will preserve any processes running in it when the connection drops. 
 [Here is a link to some useful examples of how to use screen](https://www.tecmint.com/screen-command-examples-to-manage-linux-terminals/). 
 A downside of using screen is that scroll doesn't work, so I don't use it when evaluating the model training.
 
 ## Workflows
-These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model
+These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model. Typically you will only need to change variables at the top of the file, or in the \_\_main\_\_ method.
 ### Simple training and testing
 1\. run [split_train_test.py](data/split_train_test.py) on raw training data  
 2\. push `data/CNS` to git  
