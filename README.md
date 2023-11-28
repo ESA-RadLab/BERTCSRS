@@ -12,7 +12,7 @@ implemented early stopping with a timeout of 3 epochs. See [this](Project%20info
 In the [data/sources](data/sources) directory there are two types of files, the `All references ....xlsx` files contain the full dataset, 
 and the `..._Screening_data.csv` files contain the subset that was manually screened and is used for training. When the data is processed 
 for training or classification, two files are created, one with all the columns, and one with just the titleabstracts (and ground-truth) 
-columns which are needed for training, because of the size of the files. The [data/output](data/output) directory contains the final outputs 
+columns which are needed for training, because of the size of the files. The [data/output](data/output) directory contains the outputs 
 of the final classification.
 
 ## A note on using a remote machine
