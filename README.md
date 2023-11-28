@@ -13,7 +13,7 @@ In the [data/sources](data/sources) directory there are two types of files, the 
 and the `..._Screening_data.csv` files contain the subset that was manually screened and is used for training. When the data is processed 
 for training or classification, two files are created, one with all the columns, and one with just the titleabstracts (and ground-truth) 
 columns which are needed for training, because of the size of the files. The [data/output](data/output) directory contains the outputs 
-of the final classification.
+of the final classification. The Teams internal team folder contains a copy of all these files, as well as some additional output files.
 
 ## A note on using a remote machine
 To prevent losing all training progress when the ssh connection times out during a long-running process, I use the `screen` 
