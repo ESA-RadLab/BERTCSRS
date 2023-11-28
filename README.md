@@ -17,8 +17,8 @@ of the final classification. The Teams internal team folder contains a copy of a
 When creating the SYRF files the abstracts that are also present in the trainingset are filtered out, which is why these files are slightly 
 smaller than the INCLUDED files.
 ### Final output
-__CNS:__ threshold: 0.23, included papers: 11017/52190, (test) recall:0.96, precision: 0.56, Fbeta: 0.84, accuracy: 0.90, auroc:0.96  
-__SD:__ threshold: 0.4, included papers: 14232/58595, (test) recall:0.97, precision: 0.39, Fbeta: 0.75, accuracy: 0.85, auroc: 0.95  
+__CNS:__ threshold: 0.23, included papers: 11017/52190, (test) recall: 0.96, precision: 0.56, Fbeta: 0.84, accuracy: 0.90, auroc: 0.96  
+__SD:__ threshold: 0.4, included papers: 14232/58595, (test) recall: 0.97, precision: 0.39, Fbeta: 0.75, accuracy: 0.85, auroc: 0.95  
 (Fbeta: beta=2)
 
 ## A note on using the remote machine
