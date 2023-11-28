@@ -8,6 +8,13 @@ which can be turned off for training, as I use BCEWithLogitsLoss(), which applie
 is implemented with a strong weight on positive samples, to emphasize recall. The optimizer used is RAdam() and I 
 implemented early stopping with a timeout of 3 epochs. See [this](Project%20info.pptx) for general info on the project.
 
+## Data
+In the [data/sources](data/sources) directory there are two types of files, the `All references ....xlsx` files contain the full dataset, 
+and the `..._Screening_data.csv` files contain the subset that was manually screened and is used for training. When the data is processed 
+for training or classification, two files are created, one with all the columns, and one with just the titleabstracts (and ground-truth) 
+columns which are needed for training, because of the size of the files. The [data/output](data/output) directory contains the final outputs 
+of the final classification.
+
 ## A note on using a remote machine
 To prevent losing all training progress when the ssh connection times out during a long-running process, I use the `screen` 
 utility which will preserve any processes running in it when the connection drops. 
@@ -15,7 +22,8 @@ utility which will preserve any processes running in it when the connection drop
 A downside of using screen is that scroll doesn't work, so I don't use it when evaluating the model training.
 
 ## Workflows
-These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model. Typically you will only need to change variables at the top of the file, or in the \_\_main\_\_ method.
+These examples use 'CNS' as the data label and 'pubmed_abstract' as the bert model. Typically you will only need to change variables at 
+the top of the file, or in the \_\_main\_\_ method.
 ### Simple training and testing
 1\. run [split_train_test.py](data/split_train_test.py) on raw training data  
 2\. push `data/CNS` to git  
