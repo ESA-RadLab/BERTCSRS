@@ -6,7 +6,8 @@ classification layer on top, feeding into a single binary classification node. T
 layer have a ReLU activation layer and a dropout of 0.2 during training. The output node has a sigmoid activation function, 
 which can be turned off for training, as I use BCEWithLogitsLoss(), which applies a sigmoid layer itself. BCEWithLogitsLoss() 
 is implemented with a strong weight on positive samples, to emphasize recall. The optimizer used is RAdam() and I 
-implemented early stopping with a timeout of 3 epochs. See [this](Project%20info.pptx) for general info on the project.
+implemented early stopping with a timeout of 3 epochs. The best epoch was selected based on both the validation loss and the 
+validation AUROC. See [this](Project%20info.pptx) for general info on the project.
 
 ## Data
 In the [data/sources](data/sources) directory there are two types of files, the `All references ....xlsx` files contain the full dataset, 
