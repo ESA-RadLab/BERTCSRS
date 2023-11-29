@@ -1,4 +1,5 @@
 # BERT for Complex Systematic Review Screening (BERTCSRS)
+See [this](Project%20info.pptx) for general info on the project.
 
 ## Model architecture & training
 The model consists of a variable version of [BERT](https://huggingface.co/blog/bert-101) with a fully-connected 
@@ -6,8 +7,11 @@ classification layer on top, feeding into a single binary classification node. T
 layer have a ReLU activation layer and a dropout of 0.2 during training. The output node has a sigmoid activation function, 
 which can be turned off for training, as I use BCEWithLogitsLoss(), which applies a sigmoid layer itself. BCEWithLogitsLoss() 
 is implemented with a strong weight on positive samples, to emphasize recall. The optimizer used is RAdam() and I 
-implemented early stopping with a timeout of 3 epochs. The best epoch was selected based on both the validation loss and the 
-validation AUROC. See [this](Project%20info.pptx) for general info on the project.
+implemented early stopping with a timeout of 3 epochs. 
+The best epoch from each fold in the Kfold analysis was selected based on both the validation loss and the validation AUROC, 
+from this the best fold was chosen to use in the final classification. The threshold for final classification was chosen based 
+on a balance between the recall and precision, with at least 95% recall and a threshold above 0.05 as a hard limit, and 
+preferably a precision above 40% (the trainingsets contain around 9.5% positive samples).  
 
 ## Data
 In the [data/sources](data/sources) directory there are two types of files, the `All references ....xlsx` files contain the full dataset, 
